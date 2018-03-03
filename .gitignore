@@ -1,2 +1,4 @@
 test_for_recursive*
-.idea
+.idea/
+__pycache__/
+.gitignore
