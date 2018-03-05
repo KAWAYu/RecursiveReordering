@@ -92,7 +92,7 @@ class EnjuXmlParser(object):
             this_node['head'] = head
             if node.text:
                 this_node['text'] = node.text
-            if node.tail and len(node.tail) == 2:
+            if node.tail and len(node.tail.split()) == 2:
                 this_node['tail'] = node.tail.split()[1].rsplit('/')[0]
         elif tag == 'tok':
             nodeid = node.attrib['id']
@@ -204,8 +204,9 @@ def read_train(tree_file_path, align_file_path, vocab, max_size, vocab_size, cat
 
             f_word_dst = []
             align = []
-            for j in range(1, len(f_words)//2):
+            #for j in range(1, len(f_words)//2):
                 # NULLアライメントは考慮しないのでfor文は1から
+            for j in range(len(f_words) // 2):
                 f_word = f_words[2*j]  # 目的言語側の単語
                 f_align = f_words[2*j+1].strip().split()  # 目的言語のアライメント先
                 f_word_dst.append((f_word, [e_wordlist[int(k)-1] for k in f_align]))

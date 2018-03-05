@@ -6,11 +6,8 @@ import codecs
 import collections
 import copy
 import json
-import os
 import pickle
 import random
-import re
-import sys
 from threading import Thread
 import time
 
@@ -102,6 +99,7 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
         return Variable(xp.array(0, dtype=xp.float32)), v, pred_list
     else:  # 節ノード
         pred_list = None
+        tail = [node['tail']] if node['tail'] else []
         left_node, right_node = node['node']
         left_loss, left, left_pred = traverse(
             model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
@@ -120,10 +118,10 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
         if pred:
             if pred_label[0] == 0:
                 left_pred.extend(right_pred)
-                pred_list = left_pred
+                pred_list = left_pred + tail
             else:
                 right_pred.extend(left_pred)
-                pred_list = right_pred
+                pred_list = right_pred + tail
 
         if evaluate is not None:
             if pred_label[0] == node['label']:

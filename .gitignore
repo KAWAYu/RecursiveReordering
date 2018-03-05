@@ -1,3 +1,5 @@
 test_for_recursive*
 .idea/*
 __pycache__/*
+train.*
+test_rec/*
