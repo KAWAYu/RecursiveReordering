@@ -245,17 +245,18 @@ if __name__ == '__main__':
 
         now = time.time()
         json.dump({"train_batch": train_batch_loss, 'dev_batch': dev_batch_loss}, 
-            open('epoch%d_loss_by_tree.json' % (epoch + 1), 'w'))
+                  open('epoch%d_loss_by_tree.json' % (epoch + 1), 'w'))
         loss_curve.append(sum_loss / len(train_trees))
         print('train loss: {:.2f}'.format(sum_loss / len(train_trees)))
 
         print("Development data evaluation:")
-        d_loss = 0
-        for dev_tree in dev_trees:
-            loss, _ = traverse(model, dev_tree, train=True, pred=False)
-            d_loss += loss.data.tolist()
-        dev_loss.append(d_loss / len(dev_trees))
-        print('dev loss: {:.2f}'.format(d_loss / len(dev_trees)))
+        Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_loss, args.gpu)).start()
+        # d_loss = 0
+        # for dev_tree in dev_trees:
+        #    loss, _ = traverse(model, dev_tree, train=True, pred=False)
+        #    d_loss += loss.data.tolist()
+        # dev_loss.append(d_loss / len(dev_trees))
+        # print('dev loss: {:.2f}'.format(d_loss / len(dev_trees)))
 
         throughput = float(len(train_trees)) / (now - cur_time)
         print('{:.2f} iter/sec, {:.2f} sec'.format(throughput, now-cur_time))
