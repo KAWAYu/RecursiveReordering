@@ -250,7 +250,8 @@ if __name__ == '__main__':
         print('train loss: {:.2f}'.format(sum_loss / len(train_trees)))
 
         print("Development data evaluation:")
-        Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_loss, args.gpu)).start()
+        t = Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_loss, args.gpus))
+        t.start()
         # d_loss = 0
         # for dev_tree in dev_trees:
         #    loss, _ = traverse(model, dev_tree, train=True, pred=False)
@@ -288,6 +289,7 @@ if __name__ == '__main__':
                 print(' '.join(pred), file=fre)
 
     # エポックごとのロスの描画
+    t.join()
     plt.clf()
     plt.figure(figsize=(8, 8))
     plt.plot(np.array([i+1 for i in range(args.epoch)]), np.array(loss_curve), label="train")
