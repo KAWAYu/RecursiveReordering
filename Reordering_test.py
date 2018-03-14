@@ -53,6 +53,8 @@ class EnjuXmlParser(object):
             this_node['head'] = head
             if node.text:
                 this_node['text'] = node.text
+            if node.tail and len(node.tail.split()) == 2:
+                this_node['tail'] = node.tail.split()[1].rsplit('/')[0]
         elif tag == 'tok':
             nodeid = node.attrib['id']
             cat = node.attrib['cat']
@@ -167,16 +169,16 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
     if node['tag'] == 'sentence':
         children = []
         for child in node['children']:
-            children.append(convert_tree_reorder_pos(vocab, child))
+            children.append(convert_tree_reorder_pos(vocab, child, cat_vocab))
         return {'tag': 'sentence', 'children': children}
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            return convert_tree_reorder_pos(vocab, node['children'][0])
+            return convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
         else:
             left_node = convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
             right_node = convert_tree_reorder_pos(vocab, node['children'][1], cat_vocab)
-            cat_id = cat_vocab[node['pos']] if node['pos'] in cat_vocab else cat_vocab['<UNK>']
+            cat_id = cat_vocab[node['cat']] if node['cat'] in cat_vocab else cat_vocab['<UNK>']
             text = node['text'] if 'text' in node else ""
             tail = node['tail'] if 'tail' in node else ""
             return {'tag': node['tag'], 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id, 'text': text, 'tail': tail}
