@@ -34,12 +34,12 @@ class STreeParser(object):
                 tmp_str += c
         return phrases[0][0]
 
-    def parse(self, node):
+    def parse(self, node, root=True):
         this_node = {}
-        if node[0] == 'ROOT':  # 根ノード
+        if root:  # 根ノード
             this_node['parse_status'] = 'success'
             this_node['tag'] = 'sentence'
-            this_node['children'] = [self.parse(node[1])]
+            this_node['children'] = [self.parse(node[-1], root=False)]
         elif len(node) == 2:  # 子が二つの時
             if isinstance(node[1], str):  # 葉ノード
                 this_node['tag'] = 'tok'
@@ -47,13 +47,13 @@ class STreeParser(object):
                 this_node['text'] = node[1]
             else:  # 節ノード
                 this_node['tag'] = 'cons'
-                this_node['children'] = self.parse(node[1])
+                this_node['children'] = self.parse(node[1], root=False)
                 this_node['cat'] = node[0]
         else:  # 子が三つの時
             this_node['tag'] = 'cons'
             this_node['cat'] = node[0]
-            left_node = self.parse(node[1])
-            right_node = self.parse(node[2])
+            left_node = self.parse(node[1], root=False)
+            right_node = self.parse(node[2], root=False)
             this_node['children'] = [left_node, right_node]
         return this_node
 
@@ -156,7 +156,7 @@ def read_dev(tree_file_path, align_file_path, vocab, cat_vocab, tree_parser):
 
             f_word_dst = []
             align = []
-            for j in range(1, len(f_words)//2):
+            for j in range(len(f_words)//2):
                 # NULLアライメントは考慮しないのでfor文は1から
                 f_word = f_words[2*j]  # 目的言語側の単語
                 f_align = f_words[2*j+1].strip().split()  # 目的言語のアライメント先

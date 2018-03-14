@@ -252,12 +252,6 @@ if __name__ == '__main__':
         print("Development data evaluation:")
         t = Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_loss, args.gpus))
         t.start()
-        # d_loss = 0
-        # for dev_tree in dev_trees:
-        #    loss, _ = traverse(model, dev_tree, train=True, pred=False)
-        #    d_loss += loss.data.tolist()
-        # dev_loss.append(d_loss / len(dev_trees))
-        # print('dev loss: {:.2f}'.format(d_loss / len(dev_trees)))
 
         throughput = float(len(train_trees)) / (now - cur_time)
         print('{:.2f} iter/sec, {:.2f} sec'.format(throughput, now-cur_time))
