@@ -11,7 +11,7 @@ import collections
 
 class STreeParser(object):
     def __init__(self, sentence):
-        self.tree = self.init_parse(sentence)
+        self.root = self.init_parse(sentence)
 
     def init_parse(self, parse_snt):
         phrases = [[]]
@@ -37,7 +37,9 @@ class STreeParser(object):
     def parse(self, node, root=True):
         this_node = {}
         if root:  # 根ノード
-            this_node['parse_status'] = 'success'
+            if node == [[]]:
+                return {'status': 'parse_error'}
+            this_node['status'] = 'success'
             this_node['tag'] = 'sentence'
             this_node['children'] = [self.parse(node[-1], root=False)]
         elif len(node) == 2:  # 子が二つの時
@@ -47,7 +49,7 @@ class STreeParser(object):
                 this_node['text'] = node[1]
             else:  # 節ノード
                 this_node['tag'] = 'cons'
-                this_node['children'] = self.parse(node[1], root=False)
+                this_node['children'] = [self.parse(node[1], root=False)]
                 this_node['cat'] = node[0]
         else:  # 子が三つの時
             this_node['tag'] = 'cons'

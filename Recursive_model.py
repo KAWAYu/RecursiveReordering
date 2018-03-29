@@ -96,7 +96,7 @@ class RecursiveNet_Child(Chain):
     def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
         super(RecursiveNet_Child, self).__init__(
             pos_emb=L.EmbedID(n_pos, n_pos_embed),
-            emb=L.mbedID(n_vocab, n_embed),
+            emb=L.EmbedID(n_vocab, n_embed),
             pel=L.Linear(n_embed + n_pos_embed, n_units),
             l=L.Linear(n_units*2 + n_pos_embed, n_units),
             w=MLP(n_units, n_pos_embed, n_labels),
