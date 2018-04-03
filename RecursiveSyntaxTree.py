@@ -20,11 +20,11 @@ xp = np
 class RecursiveNet(Chain):
     def __init__(self, vocab_size, embed_size, hidden_size, label_size):
         super(RecursiveNet, self).__init__(
-            emb = L.EmbedID(vocab_size, embed_size),
-            e = L.Linear(embed_size, hidden_size),
-            d = L.Linear(hidden_size * 2, label_size),
-            l = L.Linear(hidden_size * 2, hidden_size),
-            w = L.Linear(hidden_size, label_size),
+            emb=L.EmbedID(vocab_size, embed_size),
+            e=L.Linear(embed_size, hidden_size),
+            d=L.Linear(hidden_size * 2, label_size),
+            l=L.Linear(hidden_size * 2, hidden_size),
+            w=L.Linear(hidden_size, label_size),
         )
 
     def leaf(self, x):
@@ -81,6 +81,7 @@ class Node(object):
         else:
             return "<class Node: [" + str(self.right) + ", " + str(self.left) + "] /Node>"
 
+
 class Nodes(object):
     """
     節ノード集合
@@ -91,42 +92,42 @@ class Nodes(object):
     def __repr__(self):
         return "<class Nodes: [" + ', '.join(str(node) for node in self.nodes) + "] /Nodes>"
 
-    def add(node):
+    def add(self, node):
         self.nodes.append(node)
 
 
 def parse():
     parser = argparse.ArgumentParser(
-        description = 'Automatically constructing tree structure with recursive neural network',
-        usage = '\n %(prog)s output_format alignmentfile [options]'
-            '\n %(prog)s -h'
+        description='Automatically constructing tree structure with recursive neural network',
+        usage='\n %(prog)s output_format alignmentfile [options]'
+              '\n %(prog)s -h'
     )
 
     parser.add_argument('output_format', help='output_format [text, sequence]')
     parser.add_argument('alignmentfile', help='alignment file(format ".gz")')
     parser.add_argument('--vocab_pkl', default="", type=str, help='vocabulary pickle file')
     parser.add_argument('--vocab_size', '-vs', default=-1, type=int,
-        help='the max number of vocabulary')
+                        help='the max number of vocabulary')
     parser.add_argument('--epoch', '-e', default=100, type=int,
-        help='number of epoch to train')
+                        help='number of epoch to train')
     parser.add_argument('--hidden_size', '-hs', default=100, type=int,
-        help='number of units')
+                        help='number of units')
     parser.add_argument('--embed_size', '-es', default=100, type=int,
-        help='number of embedding size')
+                        help='number of embedding size')
     parser.add_argument('--batchsize', '-b', default=128, type=int,
-        help='size of minibatch')
+                        help='size of minibatch')
     parser.add_argument('--label', '-l', default=2, type=int,
-        help='number of labels')
+                        help='number of labels')
     parser.add_argument('--evalinterval', '-p', default=5, type=int,
-        help='number of epochs per evaluation')
+                        help='number of epochs per evaluation')
     parser.add_argument('--gpus', '-g', default=-1, type=int,
-        help='number of gpu you want to use')
+                        help='number of gpu you want to use')
     parser.add_argument('--model', '-m', default=-1, type=int,
-        help='appoint the epoch if you start from previous training')
+                        help='appoint the epoch if you start from previous training')
     parser.add_argument('--img_name', default="", type=str,
-        help='image\'s name of learning curve')
+                        help='image\'s name of learning curve')
     parser.add_argument('--optimize', default='adam', type=str,
-        help='optimizer for neural network(default: Adam)')
+                        help='optimizer for neural network(default: Adam)')
     parser.add_argument('--visualize', '-v', dest='visualize', action='store_true')
     parser.set_defaults(visualize=False)
     args = parser.parse_args()
@@ -151,12 +152,12 @@ def cky(leaves):
     # 最後が記号(.?)の時は途中で結合して欲しくないので退避
     if leaves[-1].word in [".", "?"]:
         leaves, last_node = leaves[:-1], leaves[-1]
-    trees = [[[n]] for n in leaves] # 葉ノードの構築
+    trees = [[[n]] for n in leaves]  # 葉ノードの構築
     len_leaves = len(leaves)
     for d in range(1, len_leaves):
         for i in range(len_leaves - d):
             nodes = []
-            for j in range(len(trees[i])): # 被覆するスパンに対して全探索
+            for j in range(len(trees[i])):  # 被覆するスパンに対して全探索
                 # 候補ノードの作成　下の場合分けは不要なので後で消す
                 if len(trees[i+j+1]) == len(trees[i]):
                     nodes += make_candidate(trees[i][j], trees[i+j+1][-j-1])
@@ -170,9 +171,6 @@ def cky(leaves):
             nodes = [n for n in nodes if n.swap == min_swap]
             trees[i].append(Nodes(nodes))
     ts = trees[0][-1]
-    # 交換回数が最小のもの
-    #min_swap = min(t.swap for t in ts)
-    #trees = [t for t in ts if t.swap == min_swap]
     return ts
 
 
@@ -240,7 +238,7 @@ def fuzzy_reordering_score(alignment):
     B += 1 if alignment[0] == 1 else 0
     B += 1 if alignment[-1] == max(alignment) else 0
     for i in range(len(alignment[:-1])):
-        if a[i] == a[i+1] or a[i] + 1 == a[i+1]:
+        if alignment[i] == alignment[i+1] or alignment[i] + 1 == alignment[i+1]:
             B += 1
     return B / (len(alignment) + 1)
 
@@ -253,7 +251,7 @@ def data_prepare(args):
     trees = []
     print_message("Reading data...")
     with gzip.open(args.alignmentfile, 'rb', 'utf-8') as align_file:
-        for line in align_file:
+        for _ in align_file:
             source = align_file.readline().strip().decode('utf-8')  # 原言語側の文
             target = align_file.readline().strip().decode('utf-8')  # 目的言語側の文
             tree = [Leaf(w, []) for w in source.split()]

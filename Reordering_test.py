@@ -19,6 +19,58 @@ import chainer.functions as F
 # xp = numpy or cuda.cupy
 xp = np
 
+
+class STreeParser(object):
+    def __init__(self, sentence):
+        self.root = self.init_parse(sentence)
+
+    def init_parse(self, parse_snt):
+        phrases = [[]]
+        tmp_str = ""
+        for c in parse_snt.strip():
+            if c == '(':
+                phrases.append([])
+            elif c == ' ':
+                if tmp_str:
+                    phrases[-1].append(tmp_str)
+                    tmp_str = ""
+            elif c == ')':
+                if tmp_str:
+                    phrases[-1].append(tmp_str)
+                    phrases[-2].append(phrases.pop())
+                    tmp_str = ""
+                else:
+                    phrases[-2].append(phrases.pop())
+            else:
+                tmp_str += c
+        return phrases[0][0]
+
+    def parse(self, node, root=True):
+        this_node = {}
+        if root:  # 根ノード
+            if node == [[]]:
+                return {'status': 'parse_error'}
+            this_node['status'] = 'success'
+            this_node['tag'] = 'sentence'
+            this_node['children'] = [self.parse(node[-1], root=False)]
+        elif len(node) == 2:  # 子が二つの時
+            if isinstance(node[1], str):  # 葉ノード
+                this_node['tag'] = 'tok'
+                this_node['pos'] = node[0]
+                this_node['text'] = node[1]
+            else:  # 節ノード
+                this_node['tag'] = 'cons'
+                this_node['children'] = [self.parse(node[1], root=False)]
+                this_node['cat'] = node[0]
+        else:  # 子が三つの時
+            this_node['tag'] = 'cons'
+            this_node['cat'] = node[0]
+            left_node = self.parse(node[1], root=False)
+            right_node = self.parse(node[2], root=False)
+            this_node['children'] = [left_node, right_node]
+        return this_node
+
+
 class EnjuXmlParser(object):
     """
     enjuのxml出力を読み込むクラス
@@ -72,8 +124,8 @@ class EnjuXmlParser(object):
 def parse():
     parser = argparse.ArgumentParser(
         description = 'Reordering with Recursive Neural Network',
-        usage = '\n %(prog)s {train, test} filepath alignmentfile [options] reorderfile'
-            '\n %(prog)s -h'
+        usage='\n %(prog)s {train, test} filepath alignmentfile [options] reorderfile'
+              '\n %(prog)s -h'
     )
 
     parser.add_argument('mode', help='choose naive or postag')
@@ -91,6 +143,8 @@ def parse():
         help='number of labels')
     parser.add_argument('--gpu', '-g', default=-1, type=int,
         help='number of gpu you want to use')
+    parser.add_argument('--tree_type', default='enju', type=str,
+                        help="tree type (enju or s)")
     args = parser.parse_args()
     return args
 
@@ -149,11 +203,14 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
         return loss, v, pred_list
 
 
-def read_reorder_pos(tree_file_path, vocab, cat_vocab):
+def read_reorder_pos(tree_file_path, vocab, cat_vocab, tree_type):
     with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file:
         for line in tree_file:
             line = line.strip()
-            tree = EnjuXmlParser(line)
+            if tree_type == "enju":
+                tree = EnjuXmlParser(line)
+            elif tree_type == "s":
+                tree = STreeParser(line)
             tree = tree.parse(tree.root)
             if tree['status'] == 'failed':
                 continue
@@ -252,7 +309,7 @@ if __name__ == '__main__':
         print("Begin reordering...")
         for i, fp in enumerate(args.reorderfile):
             with codecs.open(fp.split('/')[-1]+'.re', 'w', 'utf-8') as fre:
-                for tree in read_reorder_pos(fp, vocab, cat_vocab):
+                for tree in read_reorder_pos(fp, vocab, cat_vocab, args.tree_type):
                     _, pred = traverse(model, tree, train=False, pred=True)
                     print(' '.join(pred), file=fre)
 
