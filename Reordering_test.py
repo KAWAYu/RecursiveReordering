@@ -123,7 +123,7 @@ class EnjuXmlParser(object):
 
 def parse():
     parser = argparse.ArgumentParser(
-        description = 'Reordering with Recursive Neural Network',
+        description='Reordering with Recursive Neural Network',
         usage='\n %(prog)s {train, test} filepath alignmentfile [options] reorderfile'
               '\n %(prog)s -h'
     )
@@ -132,17 +132,17 @@ def parse():
     parser.add_argument('model', help='model file')
     parser.add_argument('vocab', help='vocabulary dictionary')
     parser.add_argument('reorderfile', nargs='+',
-        help='file path you want to reorder')
+                        help='file path you want to reorder')
     parser.add_argument('--unit', '-u', default=30, type=int,
-        help='number of units')
+                        help='number of units')
     parser.add_argument('--embed_size', '-emb', default=30, type=int,
-        help='number of embedding size')
+                        help='number of embedding size')
     parser.add_argument('--pos_embed_size', '-pemb', default=30, type=int,
-        help='number of pos-tag embedding size')
+                        help='number of pos-tag embedding size')
     parser.add_argument('--label', '-l', default=2, type=int,
-        help='number of labels')
+                        help='number of labels')
     parser.add_argument('--gpu', '-g', default=-1, type=int,
-        help='number of gpu you want to use')
+                        help='number of gpu you want to use')
     parser.add_argument('--tree_type', default='enju', type=str,
                         help="tree type (enju or s)")
     args = parser.parse_args()
