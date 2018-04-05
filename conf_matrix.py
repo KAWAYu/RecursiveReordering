@@ -198,9 +198,11 @@ def evaluate(model, eval_trees, result):
 def print_confusion_matrix(result):
     print("      |     0|     1")
     print("--------------------")
-    print("     0|%6d|%6d %.4f%%" % (result[0][0], result[0][1], result[0][0] / (result[0][0] + result[0][1])))
+    print("     0|%6d|%6d %.3f%%" % (result[0][0], result[0][1], result[0][0] / (result[0][0] + result[0][1])))
     print("--------------------")
-    print("     1|%6d|%6d %.4f%%" % (result[1][0], result[1][1], result[1][1] / (result[1][0] + result[1][1])))
+    print("     1|%6d|%6d %.3f%%" % (result[1][0], result[1][1], result[1][1] / (result[1][0] + result[1][1])))
+    print("       %.3f%%|%.3f%%" % (result[0][0] / (result[0][0] + result[1][0]),
+                                    result[1][1] / (result[0][1] + result[1][1])))
     print()
     print("acc: %.4f" % ((result[0][0] + result[1][1]) / (result[0][0] + result[0][1] + result[1][0] + result[1][1])))
 
