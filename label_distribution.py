@@ -21,60 +21,7 @@ def parse():
     return parser.parse_args()
 
 
-# def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
-#     if root:  # 根っこ
-#         sum_loss = Variable(np.array(0, dtype=np.float32))
-#         pred_lists = []
-#         for child in node['children']:
-#             loss, _, pred_list = traverse(
-#                 model, child, train=train, pred=pred, root=False, evaluate=evaluate
-#             )
-#             sum_loss += loss
-#             if pred_list is not None:
-#                 pred_lists.extend(pred_list)
-#         return sum_loss, pred_lists
-#     elif node['tag'] == 'tok':  # 葉ノード
-#         pred_list = [node['text']]
-#         embed = np.array([node['node']], dtype=np.int32)
-#         pos_embed = np.array([node['cat_id']], dtype=np.int32)
-#         x = Variable(embed)
-#         p = Variable(pos_embed)
-#         v = model.leaf(x, p)
-#         return Variable(np.array(0, dtype=np.float32)), v, pred_list
-#     else:  # 節ノード
-#         pred_list = None
-#         tail = [node['tail']] if node['tail'] else []
-#         left_node, right_node = node['node']
-#         left_loss, left, left_pred = traverse(
-#             model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
-#         right_loss, right, right_pred = traverse(
-#             model, right_node, train=train, pred=pred, root=False, evaluate=evaluate)
-#         p = Variable(np.array([node['cat_id']], dtype=np.int32))
-#         v = model.node(left, right, p)
-#         loss = left_loss + right_loss
-#         y = model.label(v)
-#         pred_label = cuda.to_cpu(y.data.argmax(1))
-#         if train:
-#             label = np.array([node['label']], dtype=np.int32)
-#             t = Variable(label)
-#             loss += F.softmax_cross_entropy(y, t)
-#
-#         if pred:
-#             if pred_label[0] == 0:
-#                 left_pred.extend(right_pred)
-#                 pred_list = left_pred + tail
-#             else:
-#                 right_pred.extend(left_pred)
-#                 pred_list = right_pred + tail
-#
-#         if evaluate is not None:
-#             evaluate[node['label']][pred_label[0]] += 1
-#
-#         return loss, v, pred_list
-
-
 def read_tree_file(tfile, align_file, tt, l_dict):
-    trees = []
     with codecs.open(tfile, 'r', 'utf-8') as fin, gzip.open(align_file, 'r') as afile:
         for line in fin:
             line = line.strip()
