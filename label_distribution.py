@@ -84,11 +84,10 @@ def convert_tree(node, elist, fdst_list, j, tau, l_dict):
                     if e_dst in tmp_e_list:
                         align.append(tmp_e_list.index(e_dst))
             tmp_tau_2 = kendall_tau(align)
-            if tmp_tau_2 > tmp_tau_1:
-                if len(l_dict) == 3 and tmp_tau_1 == tmp_tau_2:
-                    l_dict["Dont care"] += 1
-                else:
-                    l_dict["Inverted"] += 1
+            if len(l_dict) == 3 and tmp_tau_1 == tmp_tau_2:
+                l_dict["Dont care"] += 1
+            elif tmp_tau_1 < tmp_tau_2:
+                l_dict["Inverted"] += 1
                 span_list = right_span + left_span
             else:
                 l_dict["Straight"] += 1
