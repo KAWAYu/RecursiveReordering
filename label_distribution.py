@@ -86,6 +86,7 @@ def convert_tree(node, elist, fdst_list, j, tau, l_dict):
             tmp_tau_2 = kendall_tau(align)
             if len(l_dict) == 3 and tmp_tau_1 == tmp_tau_2:
                 l_dict["Dont care"] += 1
+                span_list = left_span + right_span
             elif tmp_tau_1 < tmp_tau_2:
                 l_dict["Inverted"] += 1
                 span_list = right_span + left_span
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     if args.label == 2:
         label_dict = {"Straight": 0, "Inverted": 0}
     elif args.label == 3:
-        label_dict = {"Straight": 0, "Inverted": 0, "Dont cate": 0}
+        label_dict = {"Straight": 0, "Inverted": 0, "Dont care": 0}
     read_tree_file(args.tree_file, args.alignment_file, args.tree_type, label_dict)
     total = sum(v for _, v in label_dict.items())
     print(' '.join("%s %.4f" % (k, v / total) for k, v in label_dict.items()))
