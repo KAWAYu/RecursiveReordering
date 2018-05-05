@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e22ff059-c252-4348-80f2-c01a44e821d3" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/my_utils/kendall_bleu.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/kendall_bleu.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my_utils/calc_rvnn_tau.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my_utils/tau_histogram_bleu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_utils/btg_tau.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/calc_btg_tau.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_utils/cc_rank.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/cc_rank.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,7 +20,7 @@
       <file leaf-file-name="ReorderingRecursive_pos.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ReorderingRecursive_pos.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="403">
+            <state relative-caret-position="1355">
               <caret line="270" column="23" lean-forward="true" selection-start-line="270" selection-start-column="23" selection-end-line="270" selection-end-column="23" />
               <folding>
                 <element signature="e#38#53#0" expanded="true" />
@@ -25,20 +29,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="giza_align_extract.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_utils/giza_align_extract.py">
+      <file leaf-file-name="calc_btg_tau.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/calc_btg_tau.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="37" column="69" selection-start-line="37" selection-start-column="69" selection-end-line="37" selection-end-column="69" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="btg_tau.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="34" column="65" lean-forward="true" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
+            <state relative-caret-position="120">
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
               <folding>
                 <element signature="e#44#59#0" expanded="true" />
               </folding>
@@ -49,19 +44,52 @@
       <file leaf-file-name="cc_rank.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="23" column="58" lean-forward="true" selection-start-line="23" selection-start-column="58" selection-end-line="23" selection-end-column="58" />
+            <state relative-caret-position="444">
+              <caret line="37" column="44" lean-forward="true" selection-start-line="37" selection-start-column="44" selection-end-line="37" selection-end-column="44" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kendall_bleu.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="kendall_bleu.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="735">
-              <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+            <state relative-caret-position="429">
+              <caret line="45" column="36" lean-forward="true" selection-start-line="45" selection-start-column="36" selection-end-line="45" selection-end-column="36" />
               <folding>
                 <element signature="e#44#59#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tau_histogram_bleu.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/tau_histogram_bleu.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="225">
+              <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
+              <folding>
+                <element signature="e#43#54#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Recursive_util_pos.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Recursive_util_pos.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="660">
+              <caret line="50" column="41" lean-forward="true" selection-start-line="50" selection-start-column="41" selection-end-line="50" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="calc_rvnn_tau.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/my_utils/calc_rvnn_tau.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="708">
+              <caret line="289" column="13" lean-forward="true" selection-start-line="289" selection-start-column="13" selection-end-line="289" selection-end-column="13" />
+              <folding>
+                <element signature="e#45#79#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -104,15 +132,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Recursive_model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Recursive_model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1365">
-              <caret line="93" selection-start-line="93" selection-end-line="93" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -121,6 +140,11 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <replaceStrings>
+      <replace>cc_rank.kendall_tau</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -143,9 +167,12 @@
         <option value="$PROJECT_DIR$/label_distribution.py" />
         <option value="$PROJECT_DIR$/extract_postag_berkeley.py" />
         <option value="$PROJECT_DIR$/my_utils/btg_tau.py" />
-        <option value="$PROJECT_DIR$/my_utils/cc_rank.py" />
         <option value="$PROJECT_DIR$/my_utils/giza_align_extract.py" />
         <option value="$PROJECT_DIR$/my_utils/kendall_bleu.py" />
+        <option value="$PROJECT_DIR$/my_utils/calc_btg_tau.py" />
+        <option value="$PROJECT_DIR$/my_utils/tau_histogram_bleu.py" />
+        <option value="$PROJECT_DIR$/my_utils/cc_rank.py" />
+        <option value="$PROJECT_DIR$/my_utils/calc_rvnn_tau.py" />
       </list>
     </option>
   </component>
@@ -224,7 +251,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2242" y="0" width="958" height="1080" extended-state="0" />
+    <frame x="1280" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -234,9 +261,10 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49676898" weight="0.36218905" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.389738" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19009584" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32935324" />
       <window_info anchor="right" id="SciView" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -248,7 +276,6 @@
       <window_info anchor="right" id="Data View" order="3" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -263,20 +290,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ReorderingRecursive_child.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
-          <caret line="77" selection-start-line="77" selection-end-line="77" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/RecursiveSyntaxTree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3690">
-          <caret line="256" column="56" selection-start-line="256" selection-start-column="56" selection-end-line="256" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Recursive_util_pos.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5280">
@@ -543,13 +556,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Recursive_util_pos.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="387" selection-start-line="387" selection-end-line="402" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ReorderingRecursive_child.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="648">
@@ -567,10 +573,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
+    <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="58" lean-forward="true" selection-start-line="23" selection-start-column="58" selection-end-line="23" selection-end-column="58" />
+        <state relative-caret-position="429">
+          <caret line="45" column="36" lean-forward="true" selection-start-line="45" selection-start-column="36" selection-end-line="45" selection-end-column="36" />
+          <folding>
+            <element signature="e#44#59#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -583,7 +592,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ReorderingRecursive_pos.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
+        <state relative-caret-position="1355">
           <caret line="270" column="23" lean-forward="true" selection-start-line="270" selection-start-column="23" selection-end-line="270" selection-end-column="23" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
@@ -591,22 +600,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
+    <entry file="file://$PROJECT_DIR$/Recursive_util_pos.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="65" lean-forward="true" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
+        <state relative-caret-position="660">
+          <caret line="50" column="41" lean-forward="true" selection-start-line="50" selection-start-column="41" selection-end-line="50" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="37" column="44" lean-forward="true" selection-start-line="37" selection-start-column="44" selection-end-line="37" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_utils/tau_histogram_bleu.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
+          <folding>
+            <element signature="e#43#54#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_utils/calc_btg_tau.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
           <folding>
             <element signature="e#44#59#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
+    <entry file="file://$PROJECT_DIR$/my_utils/calc_rvnn_tau.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+        <state relative-caret-position="708">
+          <caret line="289" column="13" lean-forward="true" selection-start-line="289" selection-start-column="13" selection-end-line="289" selection-end-column="13" />
           <folding>
-            <element signature="e#44#59#0" expanded="true" />
+            <element signature="e#45#79#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -10,7 +10,7 @@ from my_utils import cc_rank
 
 def parse():
     parser = argparse.ArgumentParser(
-        usage="python3 btg_tau.py <BTG's order file> <Alignment file> <OUTPUT>",
+        usage="python3 calc_btg_tau.py <BTG's order file> <Alignment file> <OUTPUT>",
         description="calculate btg's tau"
     )
 
