@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e22ff059-c252-4348-80f2-c01a44e821d3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/my_utils/btg_tau.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my_utils/cc_rank.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my_utils/kendall_bleu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf_matrix.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/conf_matrix.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extract_postag_berkeley.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/extract_postag_berkeley.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/giza_align_extract.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/giza_align_extract.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/label_distribution.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/label_distribution.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess_btg.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/preprocess_btg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess_btg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/preprocess_btg.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_utils/kendall_bleu.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_utils/kendall_bleu.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,128 +12,108 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="vertical" split-proportion="0.5">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="ReorderingRecursive_pos.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/ReorderingRecursive_pos.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="181">
-                  <caret line="295" column="16" lean-forward="true" selection-start-line="295" selection-start-column="16" selection-end-line="295" selection-end-column="16" />
-                  <folding>
-                    <element signature="e#38#53#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="giza_align_extract.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/giza_align_extract.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="525">
-                  <caret line="37" column="69" selection-start-line="37" selection-start-column="69" selection-end-line="37" selection-end-column="69" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="btg_tau.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="538">
-                  <caret line="53" selection-start-line="53" selection-end-line="53" />
-                  <folding>
-                    <element signature="e#44#59#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="cc_rank.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="345">
-                  <caret line="23" column="58" lean-forward="true" selection-start-line="23" selection-start-column="58" selection-end-line="23" selection-end-column="58" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="kendall_bleu.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="210">
-                  <caret line="26" column="4" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
-                  <folding>
-                    <element signature="e#44#59#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="label_distribution.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/label_distribution.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="648">
-                  <caret line="88" column="14" selection-start-line="88" selection-start-column="14" selection-end-line="88" selection-end-column="14" />
-                  <folding>
-                    <element signature="e#44#59#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="extract_postag_berkeley.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/my_utils/extract_postag_berkeley.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="690">
-                  <caret line="47" column="41" selection-start-line="47" selection-start-column="41" selection-end-line="47" selection-end-column="41" />
-                  <folding>
-                    <element signature="e#43#56#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Reordering_test.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Reordering_test.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="3660">
-                  <caret line="249" column="30" selection-start-line="249" selection-start-column="30" selection-end-line="249" selection-end-column="30" />
-                  <folding>
-                    <element signature="e#38#53#0" expanded="true" />
-                    <marker date="1522796350616" expanded="true" signature="2864:3123" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Recursive_model.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Recursive_model.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1365">
-                  <caret line="93" selection-start-line="93" selection-end-line="93" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf>
-          <file leaf-file-name="kendall_bleu.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="210">
-                  <caret line="31" column="14" lean-forward="true" selection-start-line="31" selection-start-column="14" selection-end-line="31" selection-end-column="14" />
-                  <folding>
-                    <element signature="e#44#59#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="ReorderingRecursive_pos.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ReorderingRecursive_pos.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="403">
+              <caret line="270" column="23" lean-forward="true" selection-start-line="270" selection-start-column="23" selection-end-line="270" selection-end-column="23" />
+              <folding>
+                <element signature="e#38#53#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="giza_align_extract.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/giza_align_extract.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="525">
+              <caret line="37" column="69" selection-start-line="37" selection-start-column="69" selection-end-line="37" selection-end-column="69" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="btg_tau.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="34" column="65" lean-forward="true" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
+              <folding>
+                <element signature="e#44#59#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cc_rank.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="23" column="58" lean-forward="true" selection-start-line="23" selection-start-column="58" selection-end-line="23" selection-end-column="58" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="kendall_bleu.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="735">
+              <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+              <folding>
+                <element signature="e#44#59#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="label_distribution.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/label_distribution.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="648">
+              <caret line="88" column="14" selection-start-line="88" selection-start-column="14" selection-end-line="88" selection-end-column="14" />
+              <folding>
+                <element signature="e#44#59#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="extract_postag_berkeley.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_utils/extract_postag_berkeley.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="690">
+              <caret line="47" column="41" selection-start-line="47" selection-start-column="41" selection-end-line="47" selection-end-column="41" />
+              <folding>
+                <element signature="e#43#56#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Reordering_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Reordering_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3660">
+              <caret line="249" column="30" selection-start-line="249" selection-start-column="30" selection-end-line="249" selection-end-column="30" />
+              <folding>
+                <element signature="e#38#53#0" expanded="true" />
+                <marker date="1522796350616" expanded="true" signature="2864:3123" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Recursive_model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Recursive_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1365">
+              <caret line="93" selection-start-line="93" selection-end-line="93" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -185,10 +156,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="1280" />
-    <option name="y" value="111" />
-    <option name="width" value="1280" />
-    <option name="height" value="727" />
+    <option name="x" value="2242" />
+    <option name="width" value="958" />
+    <option name="height" value="1080" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -254,7 +224,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="111" width="1280" height="727" extended-state="0" />
+    <frame x="2242" y="0" width="958" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -263,8 +233,8 @@
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49676898" weight="0.3627586" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.09289176" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49676898" weight="0.36218905" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.389738" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" id="SciView" order="3" />
@@ -597,16 +567,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="538">
-          <caret line="53" selection-start-line="53" selection-end-line="53" />
-          <folding>
-            <element signature="e#44#59#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my_utils/cc_rank.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
@@ -623,18 +583,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ReorderingRecursive_pos.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="295" column="16" lean-forward="true" selection-start-line="295" selection-start-column="16" selection-end-line="295" selection-end-column="16" />
+        <state relative-caret-position="403">
+          <caret line="270" column="23" lean-forward="true" selection-start-line="270" selection-start-column="23" selection-end-line="270" selection-end-column="23" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/my_utils/btg_tau.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="65" lean-forward="true" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
+          <folding>
+            <element signature="e#44#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/my_utils/kendall_bleu.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="31" column="14" lean-forward="true" selection-start-line="31" selection-start-column="14" selection-end-line="31" selection-end-column="14" />
+        <state relative-caret-position="735">
+          <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
           <folding>
             <element signature="e#44#59#0" expanded="true" />
           </folding>
