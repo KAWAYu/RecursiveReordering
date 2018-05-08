@@ -5,7 +5,7 @@ import argparse
 import gzip
 import codecs
 import re
-from my_utils import cc_rank
+from . import cc_rank
 
 
 def parse():
