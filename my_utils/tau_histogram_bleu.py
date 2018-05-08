@@ -31,6 +31,20 @@ def make_bars(data, bins=20):
     return data_nums
 
 
+def make_tau_bleu(taus, bleus, bins=20):
+    taus_num = [0 for _ in range(bins)]
+    bleus_sum = [0 for _ in range(bins)]
+    for t, b in zip(taus, bleus):
+        if t == 1.0:
+            taus_num[-1] += 1
+            bleus_sum[-1] += b
+        else:
+            idx = math.floor((t + 1) * 10)
+            taus_num[idx] += 1
+            bleus_sum[idx] += b
+    return taus_num, bleus_sum
+
+
 if __name__ == '__main__':
     args = parse()
     with codecs.open(args.base_tau) as base_t, codecs.open(args.btg_tau) as btg_t, \
@@ -42,19 +56,35 @@ if __name__ == '__main__':
         base_bleus = [float(b.strip()) for b in base_b]
         btg_bleus = [float(b.strip()) for b in btg_b]
         rvnn_bleus = [float(b.strip()) for b in rvnn_b]
-    base_taus_normed = [t / len(base_taus) for t in make_bars(base_taus)]
-    btg_taus_normed = [t / len(btg_taus) for t in make_bars(btg_taus)]
-    rvnn_taus_normed = [t / len(rvnn_taus) for t in make_bars(rvnn_taus)]
+    base_taus_num, base_bleus_sum = make_tau_bleu(base_taus, base_bleus)
+    btg_taus_num, btg_bleus_sum = make_tau_bleu(btg_taus, btg_bleus)
+    rvnn_taus_num, rvnn_bleus_sum = make_tau_bleu(rvnn_taus, rvnn_bleus)
+    base_taus_normed = [t / len(base_taus) for t in base_taus_num]
+    btg_taus_normed = [t / len(btg_taus) for t in btg_taus_num]
+    rvnn_taus_normed = [t / len(rvnn_taus) for t in rvnn_taus_num]
+    base_bleus_normed = [b / t for b, t in zip(base_bleus_sum, base_taus_num)]
+    btg_bleus_normed = [b / t for b, t in zip(btg_bleus_sum, btg_taus_num)]
+    rvnn_bleus_normed = [b / t for b, t in zip(rvnn_bleus_sum, rvnn_taus_num)]
+
+    print(base_bleus_normed)
+    print(btg_bleus_normed)
+    print(rvnn_bleus_normed)
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    ax1.bar([(i-10)/10 for i in range(0, 20)], base_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="w/o preordering")
-    ax1.bar([(i-10+0.3)/10 for i in range(0, 20)], btg_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="preordering with BTG")
-    ax1.bar([(i-10+0.6)/10 for i in range(0, 20)], rvnn_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="preordering with RvNN")
+    ax1.bar([(i-10)/10 for i in range(0, 20)], base_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of w/o preordering")
+    ax1.bar([(i-10+0.3)/10 for i in range(0, 20)], btg_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of preordering with BTG")
+    ax1.bar([(i-10+0.6)/10 for i in range(0, 20)], rvnn_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of preordering with RvNN")
+    ax2 = ax1.twinx()
+    ax2.scatter([(i - 10) / 10 for i in range(0, 20)], base_bleus_normed, 'o', label="bleu of w/o preordering")
+    ax2.scatter([(i - 10 + 0.3) / 10 for i in range(0, 20)], btg_bleus_normed, 'o', label="bleu of preordering with BTG")
+    ax2.scatter([(i - 10 + 0.6) / 10 for i in range(0, 20)], rvnn_bleus_normed, 'o', label="bleu of preordering with RvNN")
     ax1.set_ylabel("proportion", fontsize=20)
+    ax2.set_ylabel("BLEU score", fontsize=20)
     ax1.set_xlabel("w/o preordering", fontsize=20)
     ax1.set_ylim(0, max(max(base_taus_normed), max(btg_taus_normed), max(rvnn_taus_normed)) + 0.05)
     ax1.tick_params(labelsize=18)
     ax1.legend()
+    ax2.legend()
     fig.tight_layout()
     plt.savefig(args.output)
