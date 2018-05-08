@@ -28,7 +28,7 @@ if __name__ == "__main__":
     base_taus = []
 
     with codecs.open(args.btg_order_file, 'r', 'utf-8') as btg, \
-            gzip.open(args.alignment_file, 'rb', encoding='utf-8') as af:
+            gzip.open(args.alignment_file, 'r') as af:
         for bline, _ in zip(btg, af):
             t_idx = []
             b_idx = bline.strip().split()
@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 aligns.append([j for j in ttokens[i * 2].strip().split()])
             for b_i in b_idx:
                 for k, align in enumerate(aligns):
-                    if b_i in align:
+                    if str(int(b_i) + 1) in align:
                         t_idx.append(k)
             base_align = []
             for align in aligns:
