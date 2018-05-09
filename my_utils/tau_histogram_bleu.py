@@ -62,9 +62,9 @@ if __name__ == '__main__':
     base_taus_normed = [t / len(base_taus) for t in base_taus_num]
     btg_taus_normed = [t / len(btg_taus) for t in btg_taus_num]
     rvnn_taus_normed = [t / len(rvnn_taus) for t in rvnn_taus_num]
-    base_bleus_normed = [b / t for b, t in zip(base_bleus_sum, base_taus_num)]
-    btg_bleus_normed = [b / t for b, t in zip(btg_bleus_sum, btg_taus_num)]
-    rvnn_bleus_normed = [b / t for b, t in zip(rvnn_bleus_sum, rvnn_taus_num)]
+    base_bleus_normed = [b / t if t != 0 else 0.0 for b, t in zip(base_bleus_sum, base_taus_num)]
+    btg_bleus_normed = [b / t if t != 0 else 0.0 for b, t in zip(btg_bleus_sum, btg_taus_num)]
+    rvnn_bleus_normed = [b / t if t != 0 else 0.0 for b, t in zip(rvnn_bleus_sum, rvnn_taus_num)]
 
     print(base_bleus_normed)
     print(btg_bleus_normed)
@@ -77,8 +77,8 @@ if __name__ == '__main__':
     ax1.bar([(i-10+0.6)/10 for i in range(0, 20)], rvnn_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of preordering with RvNN")
     ax2 = ax1.twinx()
     ax2.scatter([(i - 10) / 10 for i in range(0, 20)], base_bleus_normed, 'o', label="bleu of w/o preordering")
-    ax2.scatter([(i - 10 + 0.3) / 10 for i in range(0, 20)], btg_bleus_normed, 'o', label="bleu of preordering with BTG")
-    ax2.scatter([(i - 10 + 0.6) / 10 for i in range(0, 20)], rvnn_bleus_normed, 'o', label="bleu of preordering with RvNN")
+    ax2.scatter([(i - 10) / 10 for i in range(0, 20)], btg_bleus_normed, 'o', label="bleu of preordering with BTG")
+    ax2.scatter([(i - 10) / 10 for i in range(0, 20)], rvnn_bleus_normed, 'o', label="bleu of preordering with RvNN")
     ax1.set_ylabel("proportion", fontsize=20)
     ax2.set_ylabel("BLEU score", fontsize=20)
     ax1.set_xlabel("w/o preordering", fontsize=20)
