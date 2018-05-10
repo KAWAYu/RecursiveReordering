@@ -45,19 +45,19 @@ def parse():
                         help='vocabulary pickle file')
     parser.add_argument('--vocab_size', default=-1, type=int,
                         help='the max number of vocabulary')
-    parser.add_argument('--epoch', '-e', default=100, type=int,
+    parser.add_argument('--epoch', '-e', default=10, type=int,
                         help='number of epoch to train')
-    parser.add_argument('--unit', '-u', default=30, type=int,
+    parser.add_argument('--unit', '-u', default=200, type=int,
                         help='number of units')
-    parser.add_argument('--embed_size', '-emb', default=30, type=int,
+    parser.add_argument('--embed_size', '-emb', default=200, type=int,
                         help='number of embedding size')
-    parser.add_argument('--pos_embed_size', '-pemb', default=30, type=int,
+    parser.add_argument('--pos_embed_size', '-pemb', default=200, type=int,
                         help='number of pos-tag embedding size')
-    parser.add_argument('--batchsize', '-b', default=128, type=int,
+    parser.add_argument('--batchsize', '-b', default=500, type=int,
                         help='size of minibatch')
     parser.add_argument('--label', '-l', default=2, type=int,
                         help='number of labels')
-    parser.add_argument('--evalinterval', '-p', default=5, type=int,
+    parser.add_argument('--evalinterval', '-p', default=1, type=int,
                         help='number of epochs per evaluation')
     parser.add_argument('--gpus', '-g', default=-1, type=int,
                         help='number of gpu you want to use')
