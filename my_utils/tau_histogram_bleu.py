@@ -81,7 +81,7 @@ if __name__ == '__main__':
     ax2.scatter([(i - 10 + 0.6) / 10 for i in range(0, 20)], rvnn_bleus_normed, 'o', label="bleu of preordering with RvNN")
     ax1.set_ylabel("proportion", fontsize=20)
     ax2.set_ylabel("BLEU score", fontsize=20)
-    ax1.set_xlabel("w/o preordering", fontsize=20)
+    ax1.set_xlabel("Kendall's τ", fontsize=20)
     ax1.set_ylim(0, max(max(base_taus_normed), max(btg_taus_normed), max(rvnn_taus_normed)) + 0.05)
     ax1.tick_params(labelsize=18)
     ax1.legend()
