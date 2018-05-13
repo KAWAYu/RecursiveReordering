@@ -3,3 +3,4 @@ test_for_recursive*
 __pycache__/*
 train.*
 test_rec/*
+test_jaen.*
