@@ -7,6 +7,11 @@ import math
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
+matplotlib.rcParams['ps.useafm'] = True
+matplotlib.rcParams['pdf.use14corefonts'] = True
+matplotlib.rcParams['text.usetex'] = True
 
 
 def parse():
@@ -58,11 +63,13 @@ if __name__ == '__main__':
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
+    ax1.get_xaxis().get_major_formatter().set_useOffset(False)
+    ax1.get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
     ax1.bar([(i-10)/10 for i in range(0, 20)], base_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of w/o preordering")
     ax1.bar([(i-10+0.3)/10 for i in range(0, 20)], btg_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of preordering with BTG")
     ax1.bar([(i-10+0.6)/10 for i in range(0, 20)], rvnn_taus_normed, width=0.03, align="edge", linewidth=1, edgecolor="#000000", label="tau of preordering with RvNN")
-    ax1.set_ylabel("proportion", fontsize=20)
-    ax1.set_xlabel("Kendall's τ", fontsize=20)
+    ax1.set_ylabel("proportion", fontsize=24)
+    ax1.set_xlabel("Kendall's τ", fontsize=24)
     ax1.set_ylim(0, max(max(base_taus_normed), max(btg_taus_normed), max(rvnn_taus_normed)) + 0.05)
     ax1.tick_params(labelsize=18)
     ax1.legend()
