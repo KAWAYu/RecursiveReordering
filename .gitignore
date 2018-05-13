@@ -4,3 +4,4 @@ test_jaen.align.gz
 __pycache__/*
 train.*
 test_rec/*
+test_jaen.*

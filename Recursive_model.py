@@ -122,3 +122,28 @@ class MLP(Chain):
     def __call__(self, left, right, p):
         l1_out = F.relu(self.l1(F.concat((F.concat((left, right)), p))))
         return F.relu(self.l2(l1_out))
+
+
+class RecursiveNetDev(Chain):
+    def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
+        super(RecursiveNetDev, self).__init__()
+        with self.init_scope():
+            self.emb=L.EmbedID(n_vocab, n_embed)
+            self.pos_emb=L.EmbedID(n_pos, n_pos_embed)
+            self.pel=L.Linear(n_embed + n_pos_embed, n_units)
+            self.l=L.Linear(n_units * 2 + n_pos_embed, n_units)
+            self.w1=L.Linear(n_units * 6 + n_pos_embed, n_units * 3)
+            self.w=L.Linear(n_units * 3, n_labels)
+
+    def leaf(self, x, p):
+        return F.relu(self.pel(F.concat((F.relu(self.emb(x)), F.relu(self.pos_emb(p))))))
+
+    def node(self, left, right, p):
+        return F.relu(self.l(F.concat((F.concat((left, right)), F.relu(self.pos_emb(p))))))
+
+    def label(self, left, right, left_l, left_r, right_l, right_r, p):
+        left_concat = F.concat((F.relu(self.emb(left_l)), F.relu(self.emb(left_r))))
+        right_concat = F.concat((F.relu(self.emb(right_l)), F.relu(self.emb(right_r))))
+        node_concat = F.concat((F.relu(self.emb(left)), F.relu(self.emb(right))))
+        node_v = F.concat((F.concat((left_concat, right_concat)), F.concat((node_concat, F.relu(self.pos_emb(p))))))
+        return self.w(F.relu(self.w1(node_v)))

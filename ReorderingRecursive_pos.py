@@ -45,19 +45,19 @@ def parse():
                         help='vocabulary pickle file')
     parser.add_argument('--vocab_size', default=-1, type=int,
                         help='the max number of vocabulary')
-    parser.add_argument('--epoch', '-e', default=100, type=int,
+    parser.add_argument('--epoch', '-e', default=10, type=int,
                         help='number of epoch to train')
-    parser.add_argument('--unit', '-u', default=30, type=int,
+    parser.add_argument('--unit', '-u', default=200, type=int,
                         help='number of units')
-    parser.add_argument('--embed_size', '-emb', default=30, type=int,
+    parser.add_argument('--embed_size', '-emb', default=200, type=int,
                         help='number of embedding size')
-    parser.add_argument('--pos_embed_size', '-pemb', default=30, type=int,
+    parser.add_argument('--pos_embed_size', '-pemb', default=200, type=int,
                         help='number of pos-tag embedding size')
-    parser.add_argument('--batchsize', '-b', default=128, type=int,
+    parser.add_argument('--batchsize', '-b', default=500, type=int,
                         help='size of minibatch')
     parser.add_argument('--label', '-l', default=2, type=int,
                         help='number of labels')
-    parser.add_argument('--evalinterval', '-p', default=5, type=int,
+    parser.add_argument('--evalinterval', '-p', default=1, type=int,
                         help='number of epochs per evaluation')
     parser.add_argument('--gpus', '-g', default=-1, type=int,
                         help='number of gpu you want to use')
@@ -230,9 +230,10 @@ if __name__ == '__main__':
                 batch_loss.backward()
                 optm.update()
                 batch_loss = 0
-                print("Development data evaluation by batch:")
-                # 検証データの評価
-                Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
+                if (t_num + 1) % (args.batchsize * 4) == 0:
+                    print("Development data evaluation by batch:")
+                    # 検証データの評価
+                    Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
             sum_loss += float(loss.data)  # epochでの総和
         if (t_num + 1) % args.batchsize != 0:
             batch_loss /= (t_num + 1) % args.batchsize
@@ -241,7 +242,7 @@ if __name__ == '__main__':
             batch_loss.backward()
             optm.update()
             # 検証データの評価
-            Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
+            # Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
 
         now = time.time()
         json.dump({"train_batch": train_batch_loss, 'dev_batch': dev_batch_loss}, 
@@ -262,17 +263,17 @@ if __name__ == '__main__':
             serializers.save_hdf5('./epoch_'+str(epoch+1)+'.model', model)
         
         # バッチのロスの描画
-        plt.clf()
-        plt.plot(np.array([(i+1)*args.batchsize for i in range(len(train_batch_loss))]), np.array(train_batch_loss),
-                 label="train batch")
-        plt.plot(np.array([(i+1)*args.batchsize for i in range(len(dev_batch_loss))]), np.array(dev_batch_loss),
-                 label="dev batch")
-        plt.title("%d's epoch batch loss curve" % (epoch + 1))
-        plt.ylim(0, 15)
-        plt.ylabel("loss")
-        plt.xlabel("batch(*%d trees)" % args.batchsize)
-        plt.legend()
-        plt.savefig("%ds_epoch_loss_curve.png" % (epoch + 1))
+        # plt.clf()
+        # plt.plot(np.array([(i+1)*args.batchsize for i in range(len(train_batch_loss))]), np.array(train_batch_loss),
+        #          label="train batch")
+        # plt.plot(np.array([(i+1)*args.batchsize for i in range(len(dev_batch_loss))]), np.array(dev_batch_loss),
+        #          label="dev batch")
+        # plt.title("%d's epoch batch loss curve" % (epoch + 1))
+        # plt.ylim(0, 15)
+        # plt.ylabel("loss")
+        # plt.xlabel("batch(*%d trees)" % args.batchsize)
+        # plt.legend()
+        # plt.savefig("%ds_epoch_loss_curve.png" % (epoch + 1))
     
     json.dump({"loss": dev_loss}, open('dev_loss_by_epoch.json', 'w'))
      
