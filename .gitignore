@@ -1,4 +1,5 @@
 test_for_recursive*
+test_jaen.align.gz
 .idea/*
 __pycache__/*
 train.*
