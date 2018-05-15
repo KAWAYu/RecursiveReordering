@@ -14,7 +14,7 @@ import argparse
 import numpy as np
 import pickle
 
-from my_utils import cc_rank
+import cc_rank
 
 
 class EnjuXmlParser(object):
