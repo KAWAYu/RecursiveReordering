@@ -37,7 +37,7 @@ if __name__ == "__main__":
             ttokens = re.split('\(\{|\}\)', tline)[:-1]
             aligns = []
             for i in range(len(ttokens) // 2):
-                aligns.append([j for j in ttokens[i * 2].strip().split()])
+                aligns.append([j for j in ttokens[i * 2 + 1].strip().split()])
             for b_i in b_idx:
                 for k, align in enumerate(aligns):
                     if str(int(b_i) + 1) in align:
