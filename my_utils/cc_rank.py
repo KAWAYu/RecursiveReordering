@@ -8,7 +8,7 @@ def kendall_tau(align):
     :param align: アライメント先を表すリスト
     """
     if len(align) == 1:
-        return 1.0
+        return 0.0
     inc = 0
     for i in range(len(align) - 1):
         for j in range(i+1, len(align)):
