@@ -13,6 +13,7 @@ import gzip
 import argparse
 import numpy as np
 import pickle
+import sys
 
 import cc_rank
 
@@ -136,7 +137,7 @@ class RecursiveNet(Chain):
         return self.w(v)
 
 
-def read_tree_data(tree_file_path, align_file_path, vocab, cat_vocab):
+def read_tree_data(tree_file_path, align_file_path, vocab, cat_vocab, tree_type):
     trees = []
     with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file_path, gzip.open(align_file_path, 'r') as align_file:
         for i, tree_line in enumerate(tree_file_path):
@@ -166,7 +167,13 @@ def read_tree_data(tree_file_path, align_file_path, vocab, cat_vocab):
                 f_word_dst.append((f_word, list(map(int, f_align))))
                 align.extend([int(k) for k in f_align])
 
-            tree = EnjuXmlParser(tree_line)
+            if tree_type == 'enju':
+                tree = EnjuXmlParser(tree_line)
+            elif tree_type == 's':
+                tree = STreeParser(tree_line)
+            else:
+                print("tree type error")
+                sys.exit(1)
             tree = tree.parse(tree.root)
             if tree['status'] == 'failed':
                 continue
@@ -254,6 +261,7 @@ def parse():
     parser.add_argument('--embed_size', '-emb', default=200, type=int, help='number of embedding size')
     parser.add_argument('--pos_embed_size', '-pemb', default=200, type=int, help='number of pos-tag embedding size')
     parser.add_argument('--output', default="rvnn_tau.txt", type=str, help="rvnn's tau output file")
+    parser.add_argument('--tree_type', default="enju", type=str, help="tree type")
     return parser.parse_args()
 
 
@@ -290,7 +298,7 @@ if __name__ == '__main__':
     taus = []
     vocab = pickle.load(open(args.vocab_pkl, 'rb'))
     cat_vocab = pickle.load(open(args.vocab_pkl + '.pos', 'rb'))
-    trees = read_tree_data(args.filepath, args.alignmentfile, vocab, cat_vocab)
+    trees = read_tree_data(args.filepath, args.alignmentfile, vocab, cat_vocab, args.tree_type)
     model = RecursiveNet(len(vocab), len(cat_vocab), args.embed_size, args.pos_embed_size, args.unit, args.label)
     serializers.load_hdf5(args.model, model)
     for i, tree in enumerate(trees):
