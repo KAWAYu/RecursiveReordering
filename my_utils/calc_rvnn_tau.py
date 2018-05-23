@@ -146,7 +146,7 @@ def read_tree_data(tree_file_path, align_file_path, vocab, cat_vocab, tree_type)
             tree_line = tree_line.strip()
             align_file.readline()
             # 原言語の読み込み(3n+2行目)
-            e_words = align_file.readline().strip().decode('utf-8').split()
+            e_words = align_file.readline().strip().decode('utf-8').split(' ')
             # 目的言語（アライメント先）の読み込み(3n行目)
             f_line = align_file.readline().strip().decode('utf-8')
             f_words = re.split('\(\{|\}\)', f_line)[:-1]
@@ -160,7 +160,7 @@ def read_tree_data(tree_file_path, align_file_path, vocab, cat_vocab, tree_type)
 
             f_word_dst = []
             align = []
-            for j in range(1, len(f_words)//2):
+            for j in range(len(f_words)//2):
                 # NULLアライメントは考慮しないのでfor文は1から
                 f_word = f_words[2*j]  # 目的言語側の単語
                 f_align = f_words[2*j+1].strip().split()  # 目的言語のアライメント先
@@ -237,7 +237,6 @@ def convert_tree(vocab, node, e_list, f_dst_list, j, tau, cat_vocab):
             return span_list, {'label': swap, 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id}
     elif node['tag'] == 'tok':
         t = vocab[node['text'].lower()] if node['text'].lower() in vocab else vocab['<UNK>']
-        e_word = e_list[j]
         in_align = False
         for i, (_, e_dst) in enumerate(f_dst_list):
             if j+1 in e_dst:
