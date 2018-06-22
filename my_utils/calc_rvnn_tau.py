@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-
 import xml.etree.ElementTree as ET
 from chainer import Chain, Variable, serializers
 import chainer.links as L
