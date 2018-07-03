@@ -149,13 +149,13 @@ def parse():
     return args
 
 
-def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
+def traverse_pos(model, node, train=True, pred=False, root=True, evaluate=None):
     global xp
     if root:  # 根っこ
         sum_loss = Variable(xp.array(0, dtype=np.float32))
         pred_lists = []
         for child in node['children']:
-            loss, _, pred_list = traverse(
+            loss, _, pred_list = traverse_pos(
                 model, child, train=train, pred=pred, root=False, evaluate=evaluate
             )
             sum_loss += loss
@@ -174,12 +174,63 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
         pred_list = None
         tail = [node['tail']] if node['tail'] else []
         left_node, right_node = node['node']
-        left_loss, left, left_pred = traverse(
+        left_loss, left, left_pred = traverse_pos(
             model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
-        right_loss, right, right_pred = traverse(
+        right_loss, right, right_pred = traverse_pos(
             model, right_node, train=train, pred=pred, root=False, evaluate=evaluate)
         p = Variable(xp.array([node['cat_id']], dtype=xp.int32))
         v = model.node(left, right, p)
+        loss = left_loss + right_loss
+        y = model.label(v)
+        pred_label = cuda.to_cpu(y.data.argmax(1))
+        if train:
+            label = xp.array([node['label']], dtype=np.int32)
+            t = chainer.Variable(label)
+            loss += F.softmax_cross_entropy(y, t)
+
+        if pred:
+            if pred_label[0] == 0:
+                left_pred.extend(right_pred)
+                pred_list = left_pred + tail
+            else:
+                right_pred.extend(left_pred)
+                pred_list = right_pred + tail
+
+        if evaluate is not None:
+            if pred_label[0] == node['label']:
+                evaluate['correct_node'] += 1
+            evaluate['total_node'] += 1
+        return loss, v, pred_list
+
+
+def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
+    global xp
+    if root:  # 根っこ
+        sum_loss = Variable(xp.array(0, dtype=np.float32))
+        pred_lists = []
+        for child in node['children']:
+            loss, _, pred_list = traverse_pos(
+                model, child, train=train, pred=pred, root=False, evaluate=evaluate
+            )
+            sum_loss += loss
+            if pred_list is not None:
+                pred_lists.extend(pred_list)
+        return sum_loss, pred_lists
+    elif node['tag'] == 'tok':  # 葉ノード
+        pred_list = [node['text']]
+        embed = xp.array([node['node']], dtype=xp.int32)
+        x = Variable(embed)
+        v = model.leaf(x)
+        return Variable(xp.array(0, dtype=xp.float32)), v, pred_list
+    else:  # 節ノード
+        pred_list = None
+        tail = [node['tail']] if node['tail'] else []
+        left_node, right_node = node['node']
+        left_loss, left, left_pred = traverse_pos(
+            model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
+        right_loss, right, right_pred = traverse_pos(
+            model, right_node, train=train, pred=pred, root=False, evaluate=evaluate)
+        v = model.node(left, right)
         loss = left_loss + right_loss
         y = model.label(v)
         pred_label = cuda.to_cpu(y.data.argmax(1))
@@ -217,6 +268,20 @@ def read_reorder_pos(tree_file_path, vocab, cat_vocab, tree_type):
             yield convert_tree_reorder_pos(vocab, tree, cat_vocab)
 
 
+def read_reorder(tree_file_path, vocab, tree_type):
+    with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file:
+        for line in tree_file:
+            line = line.strip()
+            if tree_type == 'enju':
+                tree = EnjuXmlParser(line)
+            elif tree_type == 's':
+                tree = STreeParser(line)
+            tree = tree.parse(tree.root)
+            if tree['status'] == 'failed':
+                continue
+            yield convert_tree_reorder(vocab, tree)
+
+
 def convert_tree_reorder_pos(vocab, node, cat_vocab):
     """
     並び替えたいファイルのデータを読み込む（テストデータ用）
@@ -245,17 +310,6 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
         return {'tag': node['tag'], 'node': v, 'cat_id': cat_id, 'text': node['text'], 'pos': node['pos']}
 
 
-def read_reorder(tree_file_path, vocab):
-    with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file:
-        for line in tree_file:
-            line = line.strip()
-            tree = EnjuXmlParser(line)
-            tree = tree.parse(tree.root)
-            if tree['status'] == 'failed':
-                continue
-            yield convert_tree_reorder(vocab, tree)
-
-
 def convert_tree_reorder(vocab, node):
     """
     並び替えたいファイルのデータを読み込む（テストデータ用）
@@ -274,10 +328,12 @@ def convert_tree_reorder(vocab, node):
         else:
             left_node = convert_tree_reorder(vocab, node['children'][0])
             right_node = convert_tree_reorder(vocab, node['children'][1])
-            return {'node': (left_node, right_node), 'cat': node['cat']}
+            text = node['text'] if 'text' in node else ''
+            tail = node['tail'] if 'tail' in node else ''
+            return {'tag': node['tag'], 'node': (left_node, right_node), 'cat': node['cat'], 'text': text, 'tail': tail}
     elif node['tag'] == 'tok':
         v = vocab[node['text'].lower()] if node['text'].lower() in vocab else vocab['<UNK>']
-        return {'node': v, 'text': node['text'], 'pos_tag': node['pos']}
+        return {'tag': node['tag'], 'node': v, 'text': node['text'], 'pos_tag': node['pos']}
 
 
 if __name__ == '__main__':
@@ -287,14 +343,16 @@ if __name__ == '__main__':
     print("Loading Model...")
     if args.mode == 'naive':
         from Recursive_model import RecursiveNet
-        import Recursive_util as util
-        #rtrees = [util.read_reorder(fp, vocab, None) for fp in args.reorderfile]
         model = RecursiveNet(len(vocab), args.embed_size, args.unit, args.label)
+        if args.gpu >= 0:
+            cuda.get_device(args.gpus).use()
+            model.to_gpu(args.gpu)
+            xp = cuda.cupy
         serializers.load_hdf5(args.model, model)
         print("Begin reordering...")
         for i, fp in enumerate(args.reorderfile):
-            with codecs.open(fp+'.re', 'w', 'utf-8') as fre:
-                for tree in read_reorder(fp, vocab):
+            with codecs.open(fp.split('/')[-1] + '.re', 'w', 'utf-8') as fre:
+                for tree in read_reorder(fp, vocab, args.tree_type):
                     _, pred = traverse(model, tree, train=False, pred=True)
                     print(' '.join(pred), file=fre)
     elif args.mode == 'postag':
@@ -310,6 +368,6 @@ if __name__ == '__main__':
         for i, fp in enumerate(args.reorderfile):
             with codecs.open(fp.split('/')[-1]+'.re', 'w', 'utf-8') as fre:
                 for tree in read_reorder_pos(fp, vocab, cat_vocab, args.tree_type):
-                    _, pred = traverse(model, tree, train=False, pred=True)
+                    _, pred = traverse_pos(model, tree, train=False, pred=True)
                     print(' '.join(pred), file=fre)
 

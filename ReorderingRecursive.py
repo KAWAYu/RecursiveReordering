@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-# encoding: utf-8
+# -*- coding:utf-8 -*-
+
 
 import argparse
 import codecs
@@ -16,11 +17,12 @@ import numpy as np
 import chainer
 from chainer import cuda, optimizers, Variable, serializers
 import chainer.functions as F
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import Recursive_util_pos as util
-from Recursive_model import RecursiveNet_CatPos as RecursiveNet
+import Recursive_util as util
+from Recursive_model import RecursiveNet
 
 # xp = numpy or cuda.cupy
 xp = np
@@ -51,8 +53,6 @@ def parse():
                         help='number of units')
     parser.add_argument('--embed_size', '-emb', default=200, type=int,
                         help='number of embedding size')
-    parser.add_argument('--pos_embed_size', '-pemb', default=200, type=int,
-                        help='number of pos-tag embedding size')
     parser.add_argument('--batchsize', '-b', default=500, type=int,
                         help='size of minibatch')
     parser.add_argument('--label', '-l', default=2, type=int,
@@ -92,10 +92,8 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
     elif node['tag'] == 'tok':  # 葉ノード
         pred_list = [node['text']]
         embed = xp.array([node['node']], dtype=xp.int32)
-        pos_embed = xp.array([node['cat_id']], dtype=xp.int32)
         x = Variable(embed)
-        p = Variable(pos_embed)
-        v = model.leaf(x, p)
+        v = model.leaf(x)
         return Variable(xp.array(0, dtype=xp.float32)), v, pred_list
     else:  # 節ノード
         pred_list = None
@@ -105,8 +103,7 @@ def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
             model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
         right_loss, right, right_pred = traverse(
             model, right_node, train=train, pred=pred, root=False, evaluate=evaluate)
-        p = Variable(xp.array([node['cat_id']], dtype=xp.int32))
-        v = model.node(left, right, p)
+        v = model.node(left, right)
         loss = left_loss + right_loss
         y = model.label(v)
         pred_label = cuda.to_cpu(y.data.argmax(1))
@@ -150,9 +147,9 @@ def evaluate(model, eval_trees):
         loss, pred_list = traverse(m, tree, train=True, pred=False, evaluate=result)
         pred_lists.append(pred_list)
         sum_loss += loss.data
-    acc_node = 100.0*result['correct_node'] / result['total_node']
+    acc_node = 100.0 * result['correct_node'] / result['total_node']
     print('  Node accuracy: {0:.2f} %% ({1:,d}/{2:,d})'.format(
-      acc_node, result['correct_node'], result['total_node']))
+        acc_node, result['correct_node'], result['total_node']))
     return acc_node, pred_lists, sum_loss
 
 
@@ -166,24 +163,23 @@ if __name__ == '__main__':
     train_batch_loss = []
 
     vocab = {'<UNK>': 0}
-    cat_vocab = {'<UNK>': 0}
     max_size = None
 
     print('Reading training data...')
-    train_trees, vocab = util.read_train(args.filepath, args.alignmentfile, vocab, max_size, args.vocab_size, cat_vocab, args.tree_type)
+    train_trees, vocab = util.read_train(args.filepath, args.alignmentfile, vocab, max_size, args.vocab_size,
+                                         args.tree_type)
     print('Reading development data...')
-    dev_trees = util.read_dev(args.devlop_file, args.devlop_alignment, vocab, cat_vocab, args.tree_type)
+    dev_trees = util.read_dev(args.devlop_file, args.devlop_alignment, vocab, args.tree_type)
 
     if args.vocab_pkl:
         pickle.dump(vocab, open(args.vocab_pkl, 'wb'))
-        pickle.dump(cat_vocab, open(args.vocab_pkl + '.pos', 'wb'))
 
     rtrees = []
     for fp in args.reorderfile:
-        rtrees.append(util.read_reorder(fp, vocab, cat_vocab, args.tree_type))
+        rtrees.append(util.read_reorder(fp, vocab, args.tree_type))
 
     print('Creating model...')
-    model = RecursiveNet(len(vocab), len(cat_vocab), args.embed_size, args.pos_embed_size, args.unit, args.label)
+    model = RecursiveNet(len(vocab), args.embed_size, args.unit, args.label)
     start_epoch = 0
     if args.model != -1:  # 保存したモデルがある場合
         serializers.load_hdf5('epoch_' + str(args.model) + '.model', model)
@@ -216,14 +212,14 @@ if __name__ == '__main__':
         train_batch_loss = []
         dev_batch_loss = []
         batch_loss = sum_loss = 0
-        print('Epoch: {0:d}'.format(epoch+1))
+        print('Epoch: {0:d}'.format(epoch + 1))
         random.shuffle(train_trees)
         cur_time = time.time()
         for t_num, tree in enumerate(train_trees):
             loss, _ = traverse(model, tree, train=True)
             batch_loss += loss
-            if (t_num+1) % args.batchsize == 0:
-                print('%d trees are learned' % (t_num+1))
+            if (t_num + 1) % args.batchsize == 0:
+                print('%d trees are learned' % (t_num + 1))
                 batch_loss /= args.batchsize
                 train_batch_loss.append(batch_loss.data.tolist())
                 model.cleargrads()
@@ -233,7 +229,8 @@ if __name__ == '__main__':
                 if (t_num + 1) % (args.batchsize * 5) == 0:
                     print("Development data evaluation by batch:")
                     # 検証データの評価
-                    Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
+                    Thread(target=traverse_dev,
+                           args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
             sum_loss += float(loss.data)  # epochでの総和
         if (t_num + 1) % args.batchsize != 0:
             batch_loss /= (t_num + 1) % args.batchsize
@@ -245,7 +242,7 @@ if __name__ == '__main__':
             # Thread(target=traverse_dev, args=(copy.deepcopy(model), dev_trees, dev_batch_loss, args.gpus)).start()
 
         now = time.time()
-        json.dump({"train_batch": train_batch_loss, 'dev_batch': dev_batch_loss}, 
+        json.dump({"train_batch": train_batch_loss, 'dev_batch': dev_batch_loss},
                   open('epoch%d_loss_by_tree.json' % (epoch + 1), 'w'))
         loss_curve.append(sum_loss / len(train_trees))
         print('train loss: {:.2f}'.format(sum_loss / len(train_trees)))
@@ -255,30 +252,17 @@ if __name__ == '__main__':
         t.start()
 
         throughput = float(len(train_trees)) / (now - cur_time)
-        print('{:.2f} iter/sec, {:.2f} sec'.format(throughput, now-cur_time))
+        print('{:.2f} iter/sec, {:.2f} sec'.format(throughput, now - cur_time))
         print()
 
-        if (epoch+1) % args.evalinterval == 0:
+        if (epoch + 1) % args.evalinterval == 0:
             print("Model saving...")
-            serializers.save_hdf5('./epoch_'+str(epoch+1)+'.model', model)
-        
-        # バッチのロスの描画
-        # plt.clf()
-        # plt.plot(np.array([(i+1)*args.batchsize for i in range(len(train_batch_loss))]), np.array(train_batch_loss),
-        #          label="train batch")
-        # plt.plot(np.array([(i+1)*args.batchsize for i in range(len(dev_batch_loss))]), np.array(dev_batch_loss),
-        #          label="dev batch")
-        # plt.title("%d's epoch batch loss curve" % (epoch + 1))
-        # plt.ylim(0, 15)
-        # plt.ylabel("loss")
-        # plt.xlabel("batch(*%d trees)" % args.batchsize)
-        # plt.legend()
-        # plt.savefig("%ds_epoch_loss_curve.png" % (epoch + 1))
-    
+            serializers.save_hdf5('./epoch_' + str(epoch + 1) + '.model', model)
+
     json.dump({"loss": dev_loss}, open('dev_loss_by_epoch.json', 'w'))
-     
+
     for i, fp in enumerate(args.reorderfile):
-        with codecs.open(fp+'.reordered', 'w', 'utf-8') as fre:
+        with codecs.open(fp + '.reordered', 'w', 'utf-8') as fre:
             for tree in rtrees[i]:
                 _, pred = traverse(model, tree, train=False, pred=True)
                 print(' '.join(pred), file=fre)
@@ -287,13 +271,13 @@ if __name__ == '__main__':
     t.join()
     plt.clf()
     plt.figure(figsize=(8, 8))
-    plt.plot(np.array([i+1 for i in range(args.epoch)]), np.array(loss_curve), label="train")
-    plt.plot(np.array([i+1 for i in range(args.epoch)]), np.array(dev_loss), label="dev")
+    plt.plot(np.array([i + 1 for i in range(args.epoch)]), np.array(loss_curve), label="train")
+    plt.plot(np.array([i + 1 for i in range(args.epoch)]), np.array(dev_loss), label="dev")
     higher = max(loss_curve + dev_loss)
     lower = min(loss_curve + dev_loss)
     plt.xlabel("epoch")
     plt.ylabel("loss")
-    plt.ylim(lower-0.3, higher+0.3)
+    plt.ylim(lower - 0.3, higher + 0.3)
     plt.legend()
     if args.visualize:
         plt.show()
