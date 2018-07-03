@@ -119,6 +119,8 @@ def parse():
                         help='number of embedding size')
     parser.add_argument('--batchsize', '-b', default=128, type=int,
                         help='size of minibatch')
+    parser.add_argument('--num_trees', default=-1, type=int,
+                        help='number of tree')
     parser.add_argument('--label', '-l', default=2, type=int,
                         help='number of labels')
     parser.add_argument('--evalinterval', '-p', default=5, type=int,
@@ -151,7 +153,7 @@ def cky(leaves):
     CKYアルゴリズムを模倣して木の構築を行う
     A -> BCのようなルールはなく全てのノードで候補があるため、各ノードで順位相関係数が高くなるように枝刈りを行う
     """
-    print_message("Construct Tree...")
+    # print_message("Construct Tree...")
     last_node = None
     # 最後が記号(.?)の時は途中で結合して欲しくないので退避
     if leaves[-1].word in [".", "?"]:
@@ -371,10 +373,11 @@ def max_cand_score(tree, model, vocab_dict, gt_node_list):
     return total_score, num_diff
 
 
-def train(alignment_filepath, epoch, model, optim, bs, vocab_dict):
+def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees):
     trees = []
     # データの読み込み
     print_message('Preparing trees from file...')
+    tree_i = 0
     with gzip.open(alignment_filepath, 'rb', 'utf-8') as alignfile:
         for _ in alignfile:
             source = alignfile.readline().strip().decode('utf-8')
@@ -388,9 +391,17 @@ def train(alignment_filepath, epoch, model, optim, bs, vocab_dict):
                     for _a in a.strip().split():
                         num_align += 1
                         tree[int(_a) - 1].alignment.append(i + 1)
-            if len(tree) >= 10 or len(tree) >= 2 * num_align:
+            if len(tree) >= 20 or len(tree) >= 2 * num_align:
+                continue
+            cky_tree = cky(tree)
+            if len(cky_tree.nodes) >= 100000:
                 continue
             trees.append(tree)
+            tree_i += 1
+            print("\r%dth tree appended" % tree_i, end='')
+            if 0 <= max_num_trees == len(trees):
+                break
+    print()
     idxes = [i for i in range(len(trees))]
     for e in range(epoch):
         print_message('Epoch %d start' % (e + 1))
@@ -460,7 +471,7 @@ def main():
     #     pprint.pprint(c_t)
     #     input()
 
-    model = train(args.alignmentfile, args.epoch, model, optm, args.batchsize, vocab_dict)
+    model = train(args.alignmentfile, args.epoch, model, optm, args.batchsize, vocab_dict, args.num_trees)
     with gzip.open(args.alignmentfile, 'rb', 'utf-8') as f:
         for _ in f:
             s = f.readline().strip().decode('utf-8').split(' ')
