@@ -4,6 +4,7 @@
 import argparse
 import codecs
 import gzip
+import matplotlib.pyplot as plt
 import numpy as np
 import time
 import re
@@ -13,7 +14,7 @@ import chainer
 from chainer import cuda, optimizers, serializers, Chain, Variable
 import chainer.functions as chainF
 import chainer.links as chainL
-
+from my_utils.cc_rank import kendall_tau
 
 xp = np
 
@@ -182,6 +183,40 @@ def cky(leaves):
     return ts
 
 
+def cky_with_score(leaves, model, vocab_dict):
+    """
+    CKYアルゴリズムっぽい感じで構文解析する
+    :param leaves:
+    :return ground_truth_tree, score, loss, node_list:
+    """
+    last_node = None
+    if leaves[-1].word in ['.', '?']:
+        leaves, last_node = leaves[:-1], leaves[-1]
+    trees = [[[model.leaf(xp.array([[vocab_dict[n.word]]]))]] if n.word in vocab_dict else
+             [[model.leaf(xp.array([[vocab_dict['<UNK>']]]))]]for n in leaves]  # 葉ノードをベクトル表現に
+    len_leaves = len(leaves)
+    for d in range(1, len_leaves):
+        for i in range(len_leaves - d):
+            nodes = []
+            for j in range(len(trees[i])):
+                # この段階でmax(Kendall's τ)&min(num_swap)&max(score)のものを逐次的に選んでいく
+                # nodes += make_candidate(trees[i][j], trees[i+j+1][-j-1 + (len(trees[i]) - len(trees[i+j+1]))])
+                node = None
+                max_tau, min_swap = None, None
+                max_score = Variable(xp.array([[0]], dtype=xp.float32))
+                left_nodes, right_nodes = trees[i][j], trees[i + j + 1][-j-1 + (len(trees[i]) - len(trees[i+j+1]))]
+                for left_node in left_nodes:
+                    for right_node in right_nodes:  # 各ペアに対して
+                        left_align = flatten_node(left_node)
+                        right_align = flatten_node(right_node)
+                        if kendall_tau(left_align + right_align) < kendall_tau(right_align + left_align):
+                            cand_node = Node(left_node, right_node, 'Inverted', left_node.swap + right_node.swap + 1)
+                            cand_tau = kendall_tau(right_align + left_align)
+                        else:
+                            cand_node = Node(left_node, right_node, 'Straight', left_node.swap + right_node.swap)
+                            cand_tau = kendall_tau(left_align + right_align)
+
+
 def make_candidate(left_nodes, right_nodes):
     nodes = []
     if isinstance(left_nodes, Nodes):
@@ -212,38 +247,6 @@ def flatten_node(node):
         for n in node.nodes:
             tmp_align += flatten_node(n)
         return tmp_align
-
-
-def kendall_tau(alignment):
-    """
-    ケンダールのτを計算する関数
-    :params alignment: ソース側のアライメント
-    """
-    c = 0
-    if len(alignment) == 0:
-        return 0.0
-    elif len(alignment) == 1:
-        return 1.0
-    else:
-        for i in range(len(alignment) - 1):
-            for j in range(i + 1, len(alignment)):
-                if alignment[i] <= alignment[j]:
-                    c += 1
-    return 2 * c / (len(alignment) * (len(alignment)-1) / 2) - 1
-
-
-def fuzzy_reordering_score(alignment):
-    """
-    Fuzzy Reordering Scoreを計算する関数
-    :params alignment: ソース側のアライメント
-    """
-    B = 0
-    B += 1 if alignment[0] == 1 else 0
-    B += 1 if alignment[-1] == max(alignment) else 0
-    for i in range(len(alignment[:-1])):
-        if alignment[i] == alignment[i+1] or alignment[i] + 1 == alignment[i+1]:
-            B += 1
-    return B / (len(alignment) + 1)
 
 
 def make_vocabulary(filepath, vocab_size):
@@ -324,13 +327,14 @@ def traverse(node, model, vocab_dict, node_list, j):
             node_score = model.detect_node(right_repr, left_repr)
             label = 1
         if type(left_node_list) == int and type(right_node_list) == int:
-            this_node_list = [(left_node_list, right_node_list)]
+            this_node_list = [(left_node_list, right_node_list, label)]
         elif type(left_node_list) != int and type(right_node_list) == int:
-            this_node_list = left_node_list + [(left_node_list[-1], right_node_list)]
+            this_node_list = left_node_list + [(left_node_list[-1][:2], right_node_list, label)]
         elif type(left_node_list) == int and type(right_node_list) != int:
-            this_node_list = right_node_list + [(left_node_list, right_node_list[-1])]
+            this_node_list = right_node_list + [(left_node_list, right_node_list[-1][:2], label)]
         else:
-            this_node_list = left_node_list + right_node_list + [(left_node_list[-1], right_node_list[-1])]
+            this_node_list = left_node_list + right_node_list \
+                             + [(left_node_list[-1][:2], right_node_list[-1][:2], label)]
         loss = chainF.softmax_cross_entropy(model.label(node_repr), np.array([label], dtype=np.int32)) \
             + left_loss + right_loss
         node_score += left_score + right_score
@@ -341,16 +345,8 @@ def traverse(node, model, vocab_dict, node_list, j):
 
 
 def max_gt_score(tree, model, vocab_dict):
-    ground_truth_trees = cky(tree)
-    max_score, max_score_loss = Variable(xp.array([[0]], dtype=xp.float32)), Variable(xp.array([[0]], dtype=xp.float32))
-    node_list = []
-    for i, n in enumerate(ground_truth_trees.nodes):
-        print('\r%d/%d tree traversed' % (i + 1, len(ground_truth_trees.nodes)), end='')
-        score, tree_loss, _, cand_node_list = traverse(n, model, vocab_dict, [], 0)
-        if max_score.data < score.data:
-            max_score, max_score_loss = score, tree_loss
-            node_list = cand_node_list
-    print()
+    # ground_truth_trees = cky(tree)
+    ground_truth_tree, max_score, max_score_loss, node_list = cky_with_score(tree, model)
     return max_score, max_score_loss, node_list
 
 
@@ -367,7 +363,8 @@ def max_cand_score(tree, model, vocab_dict, gt_node_list):
         total_score += scores[max_idx]
         tree_vec[max_idx: max_idx + 2] = [model.concat_node(tree_vec[max_idx], tree_vec[max_idx + 1])]
         aligns[max_idx: max_idx + 2] = [aligns[max_idx] + aligns[max_idx + 1]]
-        node_list.append((concat_nodes[max_idx], concat_nodes[max_idx + 1]))
+        node_list.append((concat_nodes[max_idx], concat_nodes[max_idx + 1],
+                          np.argmax(model.label(tree_vec[max_idx]).data)))
         concat_nodes[max_idx: max_idx + 2] = [(concat_nodes[max_idx], concat_nodes[max_idx + 1])]
     num_diff = len(set(node_list) - set(gt_node_list))
     return total_score, num_diff
@@ -376,7 +373,7 @@ def max_cand_score(tree, model, vocab_dict, gt_node_list):
 def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees):
     trees = []
     # データの読み込み
-    print_message('Preparing trees from file...')
+    print_message('Preparing data from file...')
     tree_i = 0
     with gzip.open(alignment_filepath, 'rb', 'utf-8') as alignfile:
         for _ in alignfile:
@@ -391,10 +388,7 @@ def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees
                     for _a in a.strip().split():
                         num_align += 1
                         tree[int(_a) - 1].alignment.append(i + 1)
-            if len(tree) >= 20 or len(tree) >= 2 * num_align:
-                continue
-            cky_tree = cky(tree)
-            if len(cky_tree.nodes) >= 100000:
+            if not (3 < len(tree) < 20) or len(tree) >= 2 * num_align:
                 continue
             trees.append(tree)
             tree_i += 1
@@ -403,6 +397,7 @@ def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees
                 break
     print()
     idxes = [i for i in range(len(trees))]
+    losses = []
     for e in range(epoch):
         print_message('Epoch %d start' % (e + 1))
         random.shuffle(idxes)
@@ -410,7 +405,7 @@ def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees
         batch_loss = 0
         for i, idx in enumerate(idxes):
             if (i + 1) % 10 == 0:
-                print_message('%dth tree...' % (i + 1))
+                print_message('%dth tree processing...' % (i + 1))
             tree = trees[idx]
             ground_truth_score, tree_loss, gt_node_list = max_gt_score(tree, model, vocab_dict)
             cand_score, num_diff = max_cand_score(tree, model, vocab_dict, gt_node_list)
@@ -425,12 +420,18 @@ def train(alignment_filepath, epoch, model, optim, bs, vocab_dict, max_num_trees
                 batch_loss.backward()
                 optim.update()
                 batch_loss = 0
-        # if (i + 1) % bs != 0:
-        #     batch_loss /= (i + 1) % bs
-        #     model.cleargrads()
-        #     batch_loss.backward()
-        #     optim.update()
+        if (i + 1) % bs != 0:
+            batch_loss /= ((i + 1) % bs)
+            model.cleargrads()
+            batch_loss.backward()
+            optim.update()
         print_message('loss: %.4f' % total_loss)
+        losses.append(total_loss)
+    plt.clf()
+    plt.plot(np.array([(i + 1) for i in range(len(losses))]), np.asarray(losses).reshape((10,)))
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.show()
     return model
 
 
@@ -448,7 +449,6 @@ def flatten_tuple_tree(node):
 
 
 def main():
-    import pprint
     global xp
     args = parse()
     print_message("Prepare training data...")
