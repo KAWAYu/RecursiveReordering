@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import xml.etree.ElementTree as ET
-import codecs
-import os
+from io import open
 import re
 import sys
 import gzip
@@ -83,28 +82,20 @@ class EnjuXmlParser(object):
 
         tag = node.tag
         if tag == 'sentence':
-            nodeid = node.attrib['id']
             status = node.attrib['parse_status']
             this_node['status'] = status
         elif tag == 'cons':
-            nodeid = node.attrib['id']
-            cat = node.attrib['cat']
-            head = node.attrib['head']
-            this_node['cat'] = cat
-            this_node['head'] = head
+            this_node['cat'] = node.attrib['cat']
+            this_node['head'] = node.attrib['head']
             if node.text:
                 this_node['text'] = node.text
             if node.tail and len(node.tail.split()) == 2:
                 this_node['tail'] = node.tail.split()[1].rsplit('/')[0]
         elif tag == 'tok':
-            nodeid = node.attrib['id']
-            cat = node.attrib['cat']
-            pos = node.attrib['pos']
-            text = node.text
-            this_node['cat'] = cat
-            this_node['pos'] = pos
-            this_node['text'] = text
-        this_node['id'] = nodeid
+            this_node['cat'] = node.attrib['cat']
+            this_node['pos'] = node.attrib['pos']
+            this_node['text'] = node.text
+        this_node['id'] = node.attrib['id']
         this_node['tag'] = tag
         this_node['children'] = children
         return this_node
@@ -115,7 +106,7 @@ def read_reorder(tree_file_path, vocab, cat_vocab, tree_reorder):
     並び替えたいファイルを読み込むための関数。並び替えるだけなのでアライメント無し。
     """
     trees = []
-    with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file:
+    with open(tree_file_path, 'r', encoding='utf-8') as tree_file:
         for line in tree_file:
             line = line.strip()
             if tree_reorder == 'enju':
@@ -137,7 +128,7 @@ def read_dev(tree_file_path, align_file_path, vocab, cat_vocab, tree_parser):
     検証ファイルを読み込むための関数
     """
     trees = []
-    with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file_path, gzip.open(align_file_path, 'r') as align_file:
+    with open(tree_file_path, 'r', encoding='utf-8') as tree_file_path, gzip.open(align_file_path, 'r') as align_file:
         for i, tree_line in enumerate(tree_file_path):
             if (i+1) % 1000 == 0:
                 print("%d lines have been read..." % (i+1))
@@ -185,7 +176,7 @@ def read_train(tree_file_path, align_file_path, vocab, max_size, vocab_size, cat
     訓練用のファイルを読み込むための関数。
     """
     trees = []
-    with codecs.open(tree_file_path, 'r', 'utf-8') as tree_file_path, gzip.open(align_file_path, 'r') as align_file:
+    with open(tree_file_path, 'r', encoding='utf-8') as tree_file_path, gzip.open(align_file_path, 'r') as align_file:
         for i, tree_line in enumerate(tree_file_path):
             if (i+1) % 1000 == 0:
                 print("%d lines have been read..." % (i+1))
@@ -206,8 +197,8 @@ def read_train(tree_file_path, align_file_path, vocab, max_size, vocab_size, cat
 
             f_word_dst = []
             align = []
-            #for j in range(1, len(f_words)//2):
-                # NULLアライメントは考慮しないのでfor文は1から
+            # for j in range(1, len(f_words)//2):
+            # NULLアライメントは考慮しないのでfor文は1から
             for j in range(len(f_words) // 2):
                 f_word = f_words[2*j]  # 目的言語側の単語
                 f_align = f_words[2*j+1].strip().split()  # 目的言語のアライメント先

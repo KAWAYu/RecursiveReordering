@@ -9,12 +9,12 @@ import chainer.functions as F
 # シンプルなモデル（単語エンベッディングのみ）
 class RecursiveNet(Chain):
     def __init__(self, n_vocab, n_embed, n_units, n_labels):
-        super(RecursiveNet, self).__init__(
-            emb=L.EmbedID(n_vocab, n_embed),
-            el=L.Linear(n_embed, n_units),
-            l=L.Linear(n_units*2, n_units),
-            w=L.Linear(n_units, n_labels),
-        )
+        super(RecursiveNet, self).__init__()
+        with self.init_scope():
+            self.emb = L.EmbedID(n_vocab, n_embed)
+            self.el = L.Linear(n_embed, n_units)
+            self.l = L.Linear(n_units*2, n_units)
+            self.w = L.Linear(n_units, n_labels)
 
     def leaf(self, x):
         return F.relu(self.el(F.relu(self.emb(x))))
@@ -28,12 +28,12 @@ class RecursiveNet(Chain):
 
 class RecursivePosNet(Chain):
     def __init__(self, n_pos, n_pos_embed, n_units, n_labels):
-        super(RecursivePosNet, self).__init__(
-            pos_emb=L.EmbedID(n_pos, n_pos_embed),
-            el=L.Linear(n_pos_embed, n_units),
-            l=L.Linear(n_units*2 + n_pos_embed, n_units),
-            w=L.Linear(n_units, n_labels),
-        )
+        super(RecursivePosNet, self).__init__()
+        with self.init_scope():
+            self.pos_emb = L.EmbedID(n_pos, n_pos_embed)
+            self.el = L.Linear(n_pos_embed, n_units)
+            self.l = L.Linear(n_units*2 + n_pos_embed, n_units)
+            self.w = L.Linear(n_units, n_labels)
 
     def leaf(self, p):
         return F.relu(self.el(F.relu(self.pos_emb(p))))
@@ -48,13 +48,13 @@ class RecursivePosNet(Chain):
 # 品詞エンベッディングを結合するモデル
 class RecursiveNet_CatPos(Chain):
     def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
-        super(RecursiveNet_CatPos, self).__init__(
-            pos_emb=L.EmbedID(n_pos, n_pos_embed),
-            emb=L.EmbedID(n_vocab, n_embed),
-            pel=L.Linear(n_embed + n_pos_embed, n_units),
-            l=L.Linear(n_units*2 + n_pos_embed, n_units),
-            w=L.Linear(n_units, n_labels)
-        )
+        super(RecursiveNet_CatPos, self).__init__()
+        with self.init_scope():
+            self.pos_emb = L.EmbedID(n_pos, n_pos_embed)
+            self.emb = L.EmbedID(n_vocab, n_embed)
+            self.pel = L.Linear(n_embed + n_pos_embed, n_units)
+            self.l = L.Linear(n_units*2 + n_pos_embed, n_units)
+            self.w = L.Linear(n_units, n_labels)
 
     def leaf(self, x, p):
         return F.relu(self.pel(F.concat((F.relu(self.emb(x)), F.relu(self.pos_emb(p))))))
@@ -69,14 +69,14 @@ class RecursiveNet_CatPos(Chain):
 # 品詞エンベッディングを足し合わせるモデル
 class RecursiveNet_AddPos(Chain):
     def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
-        super(RecursiveNet_AddPos, self).__init__(
-            pos_emb=L.EmbedID(n_pos, n_pos_embed),
-            emb=L.EmbedID(n_vocab, n_embed),
-            el=L.Linear(n_embed, n_units),
-            pl=L.Linear(n_pos_embed, n_units),
-            l=L.Linear(n_units*2, n_units),
-            w=L.Linear(n_units, n_labels),
-        )
+        super(RecursiveNet_AddPos, self).__init__()
+        with self.init_scope():
+            self.pos_emb = L.EmbedID(n_pos, n_pos_embed)
+            self.emb = L.EmbedID(n_vocab, n_embed)
+            self.el = L.Linear(n_embed, n_units)
+            self.pl = L.Linear(n_pos_embed, n_units)
+            self.l = L.Linear(n_units*2, n_units)
+            self.w = L.Linear(n_units, n_labels)
 
     def leaf(self, x, p):
         # 葉ノード
@@ -94,13 +94,13 @@ class RecursiveNet_AddPos(Chain):
 
 class RecursiveNet_Child(Chain):
     def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
-        super(RecursiveNet_Child, self).__init__(
-            pos_emb=L.EmbedID(n_pos, n_pos_embed),
-            emb=L.EmbedID(n_vocab, n_embed),
-            pel=L.Linear(n_embed + n_pos_embed, n_units),
-            l=L.Linear(n_units*2 + n_pos_embed, n_units),
-            w=MLP(n_units, n_pos_embed, n_labels),
-        )
+        super(RecursiveNet_Child, self).__init__()
+        with self.init_scope():
+            self.pos_emb = L.EmbedID(n_pos, n_pos_embed)
+            self.emb = L.EmbedID(n_vocab, n_embed)
+            self.pel = L.Linear(n_embed + n_pos_embed, n_units)
+            self.l = L.Linear(n_units*2 + n_pos_embed, n_units)
+            self.w = MLP(n_units, n_pos_embed, n_labels)
 
     def leaf(self, x, p):
         return F.relu(self.pel(F.concat((F.relu(self.emb(x)), F.relu(self.pos_emb(p))))))
@@ -114,10 +114,10 @@ class RecursiveNet_Child(Chain):
 
 class MLP(Chain):
     def __init__(self, n_units, n_pos_embed, n_labels):
-        super(MLP, self).__init__(
-            l1=L.Linear(n_units*2 + n_pos_embed, n_units),
-            l2=L.Linear(n_units, n_labels),
-        )
+        super(MLP, self).__init__()
+        with self.init_scope():
+            self.l1 = L.Linear(n_units*2 + n_pos_embed, n_units)
+            self.l2 = L.Linear(n_units, n_labels)
 
     def __call__(self, left, right, p):
         l1_out = F.relu(self.l1(F.concat((F.concat((left, right)), p))))
@@ -128,12 +128,12 @@ class RecursiveNetDev(Chain):
     def __init__(self, n_vocab, n_pos, n_embed, n_pos_embed, n_units, n_labels):
         super(RecursiveNetDev, self).__init__()
         with self.init_scope():
-            self.emb=L.EmbedID(n_vocab, n_embed)
-            self.pos_emb=L.EmbedID(n_pos, n_pos_embed)
-            self.pel=L.Linear(n_embed + n_pos_embed, n_units)
-            self.l=L.Linear(n_units * 2 + n_pos_embed, n_units)
-            self.w1=L.Linear(n_units * 6 + n_pos_embed, n_units * 3)
-            self.w=L.Linear(n_units * 3, n_labels)
+            self.emb = L.EmbedID(n_vocab, n_embed)
+            self.pos_emb = L.EmbedID(n_pos, n_pos_embed)
+            self.pel = L.Linear(n_embed + n_pos_embed, n_units)
+            self.l = L.Linear(n_units * 2 + n_pos_embed, n_units)
+            self.w1 = L.Linear(n_units * 6 + n_pos_embed, n_units * 3)
+            self.w = L.Linear(n_units * 3, n_labels)
 
     def leaf(self, x, p):
         return F.relu(self.pel(F.concat((F.relu(self.emb(x)), F.relu(self.pos_emb(p))))))
