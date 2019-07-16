@@ -326,7 +326,7 @@ def convert_tree_dev(vocab, node, e_list, f_dst_list, j, tau, cat_vocab):
     """
     if node['tag'] == 'sentence':
         children = []
-        span = (j,j)
+        span = (j, j)
         for child in node['children']:
             span, child_node = convert_tree_dev(vocab, child, e_list, f_dst_list, span[1], tau, cat_vocab)
             children.append(child_node)

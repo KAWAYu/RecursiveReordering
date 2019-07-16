@@ -133,6 +133,8 @@ def parse():
     parser.add_argument('vocab', help='vocabulary dictionary')
     parser.add_argument('reorderfile', nargs='+',
                         help='file path you want to reorder')
+    parser.add_argument('--output_format', '-outf', default='text',
+                        help='output format (`test` or `order`)')
     parser.add_argument('--unit', '-u', default=30, type=int,
                         help='number of units')
     parser.add_argument('--embed_size', '-emb', default=30, type=int,
@@ -149,35 +151,42 @@ def parse():
     return args
 
 
-def traverse_pos(model, node, train=True, pred=False, root=True, evaluate=None):
+def traverse_pos(model, node, o, train=True, pred=False, root=True, evaluate=None):
     global xp
     if root:  # 根っこ
         sum_loss = Variable(xp.array(0, dtype=np.float32))
-        pred_lists = []
+        pred_lists, order_lists = [], []
         for child in node['children']:
-            loss, _, pred_list = traverse_pos(
-                model, child, train=train, pred=pred, root=False, evaluate=evaluate
+            loss, _, pred_list, order_list = traverse_pos(
+                model, child, o, train=train, pred=pred, root=False, evaluate=evaluate
             )
             sum_loss += loss
             if pred_list is not None:
                 pred_lists.extend(pred_list)
-        return sum_loss, pred_lists
+            if order_list is not None:
+                order_lists.extend(order_list)
+                o = len(order_lists)
+        return sum_loss, pred_lists, order_lists
     elif node['tag'] == 'tok':  # 葉ノード
         pred_list = [node['text']]
+        order_list = [o]
         embed = xp.array([node['node']], dtype=xp.int32)
         pos_embed = xp.array([node['cat_id']], dtype=xp.int32)
         x = Variable(embed)
         p = Variable(pos_embed)
         v = model.leaf(x, p)
-        return Variable(xp.array(0, dtype=xp.float32)), v, pred_list
+        return Variable(xp.array(0, dtype=xp.float32)), v, pred_list, order_list
     else:  # 節ノード
         pred_list = None
-        tail = [node['tail']] if node['tail'] else []
+        tail, tailo = [], []
         left_node, right_node = node['node']
-        left_loss, left, left_pred = traverse_pos(
-            model, left_node, train=train, pred=pred, root=False, evaluate=evaluate)
-        right_loss, right, right_pred = traverse_pos(
-            model, right_node, train=train, pred=pred, root=False, evaluate=evaluate)
+        left_loss, left, left_pred, left_order = traverse_pos(
+            model, left_node, o, train=train, pred=pred, root=False, evaluate=evaluate)
+        right_loss, right, right_pred, right_order = traverse_pos(
+            model, right_node, o + len(left_order), train=train, pred=pred, root=False, evaluate=evaluate)
+        if node['tail']:
+            tail = [node['tail']]
+            tailo = [o + len(left_order) + len(right_order)]
         p = Variable(xp.array([node['cat_id']], dtype=xp.int32))
         v = model.node(left, right, p)
         loss = left_loss + right_loss
@@ -192,18 +201,22 @@ def traverse_pos(model, node, train=True, pred=False, root=True, evaluate=None):
             if pred_label[0] == 0:
                 left_pred.extend(right_pred)
                 pred_list = left_pred + tail
+                left_order.extend(right_order)
+                order_list = left_order + tailo
             else:
                 right_pred.extend(left_pred)
                 pred_list = right_pred + tail
+                right_order.extend(left_order)
+                order_list = right_order + tailo
 
         if evaluate is not None:
             if pred_label[0] == node['label']:
                 evaluate['correct_node'] += 1
             evaluate['total_node'] += 1
-        return loss, v, pred_list
+        return loss, v, pred_list, order_list
 
 
-def traverse(model, node, train=True, pred=False, root=True, evaluate=None):
+def traverse(model, node, o, train=True, pred=False, root=True, evaluate=None):
     global xp
     if root:  # 根っこ
         sum_loss = Variable(xp.array(0, dtype=np.float32))
@@ -353,8 +366,14 @@ if __name__ == '__main__':
         for i, fp in enumerate(args.reorderfile):
             with codecs.open(fp.split('/')[-1] + '.re', 'w', 'utf-8') as fre:
                 for tree in read_reorder(fp, vocab, args.tree_type):
-                    _, pred = traverse(model, tree, train=False, pred=True)
-                    print(' '.join(pred), file=fre)
+                    _, pred, order = traverse(model, tree, 0, train=False, pred=True)
+                    if args.output_format == 'text':
+                        print(' '.join(pred), file=fre)
+                    elif args.output_format == 'order':
+                        hd = {}
+                        for oi, o in enumerate(order):
+                            hd[o] = oi
+                        print(' '.join(str(hd[oi]) for oi in range(len(order))), file=fre)
     elif args.mode == 'postag':
         from Recursive_model import RecursiveNet_CatPos
         cat_vocab = pickle.load(open(args.vocab + '.pos', 'rb'))
@@ -368,6 +387,11 @@ if __name__ == '__main__':
         for i, fp in enumerate(args.reorderfile):
             with codecs.open(fp.split('/')[-1]+'.re', 'w', 'utf-8') as fre:
                 for tree in read_reorder_pos(fp, vocab, cat_vocab, args.tree_type):
-                    _, pred = traverse_pos(model, tree, train=False, pred=True)
-                    print(' '.join(pred), file=fre)
-
+                    _, pred, order = traverse_pos(model, tree, 0, train=False, pred=True)
+                    if args.output_format == 'text':
+                        print(' '.join(pred), file=fre)
+                    elif args.output_format == 'order':
+                        hd = {}
+                        for oi, o in enumerate(order):
+                            hd[o] = oi
+                        print(' '.join(str(hd[oi]) for oi in range(len(order))), file=fre)
