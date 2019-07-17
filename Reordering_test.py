@@ -105,7 +105,7 @@ class EnjuXmlParser(object):
             this_node['head'] = head
             if node.text:
                 this_node['text'] = node.text
-            if node.tail.strip():
+            if node.tail is not None:
                 this_node['tail'] = node.tail.strip().rsplit('/', 1)[0]
         elif tag == 'tok':
             nodeid = node.attrib['id']
