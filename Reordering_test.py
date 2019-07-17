@@ -170,6 +170,9 @@ def traverse_pos(model, node, o, train=True, pred=False, root=True, evaluate=Non
     elif node['tag'] == 'tok':  # 葉ノード
         pred_list = [node['text']]
         order_list = [o]
+        if 'tail' in node and node['tail']:
+            pred_list += [node['tail']]
+            order_list += [o+1]
         embed = xp.array([node['node']], dtype=xp.int32)
         pos_embed = xp.array([node['cat_id']], dtype=xp.int32)
         x = Variable(embed)
