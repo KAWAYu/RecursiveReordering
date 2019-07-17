@@ -309,7 +309,14 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            return convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
+            tail = node['tail'] if 'tail' in node else ''
+            cnode = convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
+            if tail:
+                if 'tail' in cnode:
+                    cnode['tail'] += ' ' + tail
+                else:
+                    cnode['tail'] = tail
+            return cnode
         else:
             left_node = convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
             right_node = convert_tree_reorder_pos(vocab, node['children'][1], cat_vocab)
