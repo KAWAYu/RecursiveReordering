@@ -318,7 +318,8 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
                 if 'tail' in cnode:
                     cnode['tail'] += ' ' + tail
                 else:
-                    cnode['tail'] = tail
+                    if cnode['tag'] == 'tok' and cnode['text'] != tail:
+                        cnode['tail'] = tail
             return cnode
         else:
             left_node = convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
