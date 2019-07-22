@@ -89,8 +89,9 @@ class EnjuXmlParser(object):
             this_node['head'] = node.attrib['head']
             if node.text:
                 this_node['text'] = node.text
-            if node.tail and len(node.tail.split()) == 2:
-                this_node['tail'] = node.tail.split()[1].rsplit('/')[0]
+            if node.tail is not None and len(node.tail.strip().split(' ')) >= 2:
+                tail = [t.rsplit('/', 1)[0] for t in node.tail.strip().split(' ')[1:] if t.rsplit('/', 1)[0] == '.']
+                this_node['tail'] = tail
         elif tag == 'tok':
             this_node['cat'] = node.attrib['cat']
             this_node['pos'] = node.attrib['pos']
@@ -183,7 +184,7 @@ def read_train(tree_file_path, align_file_path, vocab, max_size, vocab_size, cat
             tree_line = tree_line.strip()
             align_file.readline()  # 3n+1行目は不要なので飛ばす
             # 原言語の読み込み(3n+2行目)
-            e_words = align_file.readline().strip().decode('utf-8').split()
+            e_words = align_file.readline().strip().decode('utf-8').split(' ')
             # 目的言語の読み込み(3n行目)
             f_line = align_file.readline().strip().decode('utf-8')
             f_words = re.split('\(\{|\}\)', f_line)[:-1]
@@ -235,13 +236,19 @@ def convert_tree_reorder(vocab, node, cat_vocab):
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            return convert_tree_reorder(vocab, node['children'][0], cat_vocab)
+            tail = node['tail'] if 'tail' in node else []
+            cnode = convert_tree_reorder(vocab, node['children'][0], cat_vocab)
+            if 'tail' in cnode:
+                cnode['tail'] += tail
+            else:
+                cnode['tail'] = tail
+            return cnode
         else:
             left_node = convert_tree_reorder(vocab, node['children'][0], cat_vocab)
             right_node = convert_tree_reorder(vocab, node['children'][1], cat_vocab)
             cat_id = cat_vocab[node['cat']] if node['cat'] in cat_vocab else cat_vocab['<UNK>']
             text = node['text'] if 'text' in node else ""
-            tail = node['tail'] if 'tail' in node else ""
+            tail = node['tail'] if 'tail' in node else []
             return {'tag': node['tag'], 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id, 'text': text, 'tail': tail}
     elif node['tag'] == 'tok':
         v = vocab[node['text'].lower()] if node['text'].lower() in vocab else vocab['<UNK>']
@@ -269,7 +276,17 @@ def convert_tree_train(vocab, node, e_list, f_dst_list, j, tau, v_size, cat_voca
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            return convert_tree_train(vocab, node['children'][0], e_list, f_dst_list, j, tau, v_size, cat_vocab)
+            cspan, cnode = convert_tree_train(vocab, node['children'][0], e_list, f_dst_list, j, tau, v_size, cat_vocab)
+            max_span = max(cspan)
+            if 'tail' in node:
+                tail_span = [max_span+i+1 for i, _ in enumerate(node['tail'])]
+            else:
+                tail_span = []
+            if 'tail' in cnode:
+                cnode['tail'] += node['tail'] if 'tail' in node else []
+            else:
+                cnode['tail'] = node['tail'] if 'tail' in node else []
+            return cspan + tail_span, cnode
         else:
             swap = 0
             left_span, left_node = convert_tree_train(vocab, node['children'][0], e_list, f_dst_list, j, tau, v_size, cat_vocab)
@@ -305,7 +322,7 @@ def convert_tree_train(vocab, node, e_list, f_dst_list, j, tau, v_size, cat_voca
                 cat_vocab[node['cat']] = len(cat_vocab)
             cat_id = cat_vocab[node['cat']] if node['cat'] in cat_vocab else cat_vocab['<UNK>']
             text = node['text'] if 'text' in node else ""
-            tail = node['tail'] if 'tail' in node else ""
+            tail = node['tail'] if 'tail' in node else []
             return span_list, {'tag': node['tag'], 'label': swap, 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id, 'text': text, 'tail': tail}
     elif node['tag'] == 'tok':
         if node['text'].lower() not in vocab and (v_size == -1 or len(vocab) < v_size):
@@ -334,7 +351,17 @@ def convert_tree_dev(vocab, node, e_list, f_dst_list, j, tau, cat_vocab):
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            return convert_tree_dev(vocab, node['children'][0], e_list, f_dst_list, j, tau, cat_vocab)
+            cspan, cnode = convert_tree_dev(vocab, node['children'][0], e_list, f_dst_list, j, tau, cat_vocab)
+            max_span = max(cspan)
+            if 'tail' in node:
+                tail_span = [max_span + i + 1 for i, _ in enumerate(node['tail'])]
+            else:
+                tail_span = []
+            if 'tail' in cnode:
+                cnode['tail'] += node['tail'] if 'tail' in node else []
+            else:
+                cnode['tail'] = node['tail'] if 'tail' in node else []
+            return cspan + tail_span, cnode
         else:
             swap = 0
             left_span, left_node = convert_tree_dev(vocab, node['children'][0], e_list, f_dst_list, j, tau, cat_vocab)
@@ -368,7 +395,7 @@ def convert_tree_dev(vocab, node, e_list, f_dst_list, j, tau, cat_vocab):
                 span_list = left_span + right_span
             cat_id = cat_vocab[node['cat']] if node['cat'] in cat_vocab else cat_vocab['<UNK>']
             text = node['text'] if 'text' in node else ""
-            tail = node['tail'] if 'tail' in node else ""
+            tail = node['tail'] if 'tail' in node else []
             return span_list, {'tag': node['tag'], 'label': swap, 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id, 'text': text, 'tail': tail}
     elif node['tag'] == 'tok':
         t = vocab[node['text'].lower()] if node['text'].lower() in vocab else vocab['<UNK>']

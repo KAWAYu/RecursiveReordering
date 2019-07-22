@@ -105,8 +105,9 @@ class EnjuXmlParser(object):
             this_node['head'] = head
             if node.text:
                 this_node['text'] = node.text
-            if node.tail is not None and len(node.tail.strip().split(' ')) == 2:
-                this_node['tail'] = node.tail.strip().split(' ')[1].rsplit('/', 1)[0]
+            if node.tail is not None and len(node.tail.strip().split(' ')) >= 2:
+                tail = [t.rsplit('/', 1)[0] for t in node.tail.strip().split(' ')[1:] if t.rsplit('/', 1)[0] == '.']
+                this_node['tail'] = tail
         elif tag == 'tok':
             nodeid = node.attrib['id']
             cat = node.attrib['cat']
@@ -171,8 +172,8 @@ def traverse_pos(model, node, o, train=True, pred=False, root=True, evaluate=Non
         pred_list = [node['text']]
         order_list = [o]
         if 'tail' in node and node['tail']:
-            pred_list += [node['tail']]
-            order_list += [o+1]
+            pred_list += node['tail']
+            order_list += [o+i+1 for i, _ in enumerate(node['tail'])]
         embed = xp.array([node['node']], dtype=xp.int32)
         pos_embed = xp.array([node['cat_id']], dtype=xp.int32)
         x = Variable(embed)
@@ -188,8 +189,8 @@ def traverse_pos(model, node, o, train=True, pred=False, root=True, evaluate=Non
         right_loss, right, right_pred, right_order = traverse_pos(
             model, right_node, o + len(left_order), train=train, pred=pred, root=False, evaluate=evaluate)
         if node['tail']:
-            tail = [node['tail']]
-            tailo = [o + len(left_order) + len(right_order)]
+            tail = node['tail']
+            tailo = [o+i + len(left_order) + len(right_order) for i, _ in enumerate(node['tail'])]
         p = Variable(xp.array([node['cat_id']], dtype=xp.int32))
         v = model.node(left, right, p)
         loss = left_loss + right_loss
@@ -312,13 +313,13 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
     elif node['tag'] == 'cons':
         assert len(node['children']) == 1 or len(node['children']) == 2
         if len(node['children']) == 1:
-            tail = node['tail'] if 'tail' in node else ''
+            tail = node['tail'] if 'tail' in node else []
             cnode = convert_tree_reorder_pos(vocab, node['children'][0], cat_vocab)
             if tail:
                 if 'tail' in cnode:
-                    cnode['tail'] += ' ' + tail
+                    cnode['tail'] += tail
                 else:
-                    if cnode['tag'] == 'tok' and cnode['text'] != tail:
+                    if cnode['tag'] == 'tok' and cnode['tag'] != tail[0]:
                         cnode['tail'] = tail
             return cnode
         else:
@@ -326,7 +327,7 @@ def convert_tree_reorder_pos(vocab, node, cat_vocab):
             right_node = convert_tree_reorder_pos(vocab, node['children'][1], cat_vocab)
             cat_id = cat_vocab[node['cat']] if node['cat'] in cat_vocab else cat_vocab['<UNK>']
             text = node['text'] if 'text' in node else ""
-            tail = node['tail'] if 'tail' in node else ""
+            tail = node['tail'] if 'tail' in node else []
             return {'tag': node['tag'], 'node': (left_node, right_node), 'cat': node['cat'], 'cat_id': cat_id, 'text': text, 'tail': tail}
     elif node['tag'] == 'tok':
         v = vocab[node['text'].lower()] if node['text'].lower() in vocab else vocab['<UNK>']
