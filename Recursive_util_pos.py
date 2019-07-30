@@ -90,7 +90,8 @@ class EnjuXmlParser(object):
             if node.text:
                 this_node['text'] = node.text
             if node.tail is not None and len(node.tail.strip().split(' ')) >= 2:
-                tail = [t.rsplit('/', 1)[0] for t in node.tail.strip().split(' ')[1:] if t.rsplit('/', 1)[0] == '.']
+                tail = [t.rsplit('/', 1)[0] for t in node.tail.strip().split(' ')[1:]
+                        if len(t.rsplit('/', 1)) == 2 and t.rsplit('/', 1)[1] == '.']
                 this_node['tail'] = tail
         elif tag == 'tok':
             this_node['cat'] = node.attrib['cat']
