@@ -49,7 +49,7 @@ class STreeParser(object):
         this_node = {}
         if root:  # 根ノード
             if node == [[]]:
-                return {'status': 'parse_error'}
+                return {'status': 'failed'}
             this_node['status'] = 'success'
             this_node['tag'] = 'sentence'
             this_node['children'] = [self.parse(node[-1], root=False)]
